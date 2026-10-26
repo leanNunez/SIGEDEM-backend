@@ -45,9 +45,13 @@ Organizada por dominio (screaming architecture), igual que el front: al abrir `s
 ```
 src/
   modules/
-    users/                   Acceso del personal
-      login/
-      register/
+    auth/                    Ingreso y permisos
+      login/                 POST /api/auth/login (JWT)
+      guards/                Guard global y control por rol
+      decorators/            @Public(), @Roles(), @CurrentUser()
+      auth.module.ts
+    users/                   Personal de la Dirección y sus roles
+      create-user/           Alta de cuentas (solo dirección)
       model/                 Entidades del dominio
       users.module.ts
     plans/                   Planes del abono
@@ -63,13 +67,14 @@ src/
   shared/                    Lo que usan varios módulos
     config/                  env.ts y setup-app.ts
     database/
-    guards/                  Autenticación y roles
   app.module.ts              Reúne los módulos
   main.ts                    Solo arranca la app
 ```
 
-- Cada carpeta de caso de uso tiene su `controller`, su `service` y sus `dto` (ej.: `users/login/login.controller.ts`).
+- Cada carpeta de caso de uso tiene su `controller`, su `service` y sus `dto` (ej.: `auth/login/login.controller.ts`).
 - Las rutas las declara cada controller (`@Controller('plans')`); todas quedan bajo `/api`.
+- `auth` depende de `users` (usa lo que `UsersModule` exporta), nunca al revés.
+- Todas las rutas quedan protegidas por defecto; las abiertas al público se marcan con `@Public()` y las del personal con `@Roles(...)`.
 - `main.ts` queda limpio: la configuración global (prefijo `/api`, CORS) está en `shared/config/setup-app.ts`.
 - Los `.gitkeep` mantienen en git las carpetas que todavía no tienen código; se borran cuando llega el primer archivo.
 
