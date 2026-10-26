@@ -1,132 +1,91 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# SIGEDEM Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+API del **Sistema Integral de Gestión Deportiva Municipal (SIGEDEM)** para la Dirección de Deportes de Tucumán. Le da al [frontend](https://github.com/CNicolas-97/SIGEDEM-frontend) los datos de planes, inscripciones, alquiler de canchas y acceso del personal.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+> Proyecto desarrollado para la materia **Programación IV** (2do año, 2do cuatrimestre).
 
-## Description
+## Inicio rápido
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
+Requisitos: **Node.js 20.19+** (o 22.12+) y **npm**.
 
 ```bash
-$ npm install
+git clone https://github.com/leanNunez/SIGEDEM-backend.git
+cd SIGEDEM-backend
+npm install
+npm run start:dev
 ```
 
-## Compile and run the project
+La API queda disponible en http://localhost:3000/api
 
-```bash
-# development
-$ npm run start
+## Scripts
 
-# watch mode
-$ npm run start:dev
+| Script               | Qué hace                                           |
+| -------------------- | -------------------------------------------------- |
+| `npm run start:dev`  | Levanta la API y la reinicia al guardar            |
+| `npm run build`      | Compila a `dist/`                                  |
+| `npm run start:prod` | Corre la versión compilada                         |
+| `npm run lint`       | Revisa el código con oxlint                        |
+| `npm run format`     | Formatea con Prettier (mismas reglas que el front) |
+| `npm test`           | Tests unitarios (Vitest)                           |
+| `npm run test:e2e`   | Tests de punta a punta contra la API               |
 
-# production mode
-$ npm run start:prod
+## Variables de entorno
+
+Van en un `.env` en la raíz, que **no** se sube a git. Es opcional: sin `.env` se usan los valores por defecto de `src/shared/config/env.ts`.
+
+| Variable       | Para qué sirve                                    | Por defecto             |
+| -------------- | ------------------------------------------------- | ----------------------- |
+| `PORT`         | Puerto donde escucha la API                       | `3000`                  |
+| `FRONTEND_URL` | Origen del front que puede llamar a la API (CORS) | `http://localhost:5173` |
+
+## Estructura
+
+Organizada por dominio (screaming architecture), igual que el front: al abrir `src/modules/` se ve de qué trata el sistema. Cada módulo de Nest tiene adentro una carpeta por caso de uso.
+
+```
+src/
+  modules/
+    users/                   Acceso del personal
+      login/
+      register/
+      model/                 Entidades del dominio
+      users.module.ts
+    plans/                   Planes del abono
+      list-plans/
+      model/
+    enrollment/              Inscripciones
+      create-enrollment/
+      model/
+    booking/                 Alquiler de canchas
+      list-available-slots/
+      create-booking/
+      model/
+  shared/                    Lo que usan varios módulos
+    config/                  env.ts y setup-app.ts
+    database/
+    guards/                  Autenticación y roles
+  app.module.ts              Reúne los módulos
+  main.ts                    Solo arranca la app
 ```
 
-## Run tests
+- Cada carpeta de caso de uso tiene su `controller`, su `service` y sus `dto` (ej.: `users/login/login.controller.ts`).
+- Las rutas las declara cada controller (`@Controller('plans')`); todas quedan bajo `/api`.
+- `main.ts` queda limpio: la configuración global (prefijo `/api`, CORS) está en `shared/config/setup-app.ts`.
+- Los `.gitkeep` mantienen en git las carpetas que todavía no tienen código; se borran cuando llega el primer archivo.
 
-```bash
-# unit tests
-$ npm run test
+## Flujo de trabajo
 
-# e2e tests
-$ npm run test:e2e
+| Rama                                   | Uso                                                  |
+| -------------------------------------- | ---------------------------------------------------- |
+| `main`                                 | Producción                                           |
+| `develop`                              | Integración del desarrollo                           |
+| `feat/*`, `fix/*`, `chore/*`, `docs/*` | Una rama por tarea, con Pull Request hacia `develop` |
 
-# test coverage
-$ npm run test:cov
-```
+- Los commits siguen [Conventional Commits](https://www.conventionalcommits.org/es/v1.0.0/) (`feat:`, `fix:`, `docs:`, `chore:`).
+- Cada Pull Request lo revisa y aprueba otro integrante del equipo antes de mergear.
 
-## Deployment
+## Equipo
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Observability
-
-In production applications, observability is essential for understanding how your system behaves, detecting issues early, and maintaining reliable performance.
-
-[NestJS Observe](https://observe.nestjs.com) automatically instruments your NestJS application, giving you deep visibility into your system with minimal setup:
-
-- **Distributed tracing:** Follow requests across services and understand how they flow through your system.
-- **Waterfall analysis:** Visualize request execution and identify slow operations, bottlenecks, and unexpected delays.
-- **Performance analysis:** Analyze application performance in real time and quickly pinpoint areas that need optimization.
-- **Metrics:** Track key application and infrastructure metrics to understand system health and performance trends.
-- **Logging:** Centralize and correlate logs with traces and other telemetry to make debugging easier.
-- **Error tracking:** Detect errors quickly and investigate their root causes with the surrounding context.
-- **SLA monitoring:** Track service-level objectives and identify when your application is approaching or exceeding defined thresholds.
-- **Alarms and alerts:** Set up alerts for critical errors, performance degradation, SLA violations, and other anomalies so your team can react quickly.
-
-To add it to this project, run this and approve the code it prints at [observe.nestjs.com/link](https://observe.nestjs.com/link) - signing up for free if you have no account:
-
-```bash
-$ npx @nestjs/observe link
-```
-
-It installs `@nestjs/observe`, wires it into `AppModule` and `main.ts`, and writes the app key and secret into `.env`, which every `nest start` script (`start`, `start:dev`, `start:debug`) then loads. In production, set `OBSERVE_APP_KEY` and `OBSERVE_APP_SECRET` in the environment instead.
-
-Or do it by hand:
-
-```bash
-$ npm install @nestjs/observe
-```
-
-Then follow the [setup guide](https://docs.nestjs.com/observability/sdk) - it takes a single import and an app key.
-
-The free plan needs no payment details and covers 300,000 events a month. You can also browse the [live demo](https://www.observe-demo.nestjs.com/dashboard) first - the whole dashboard over a busy service's data, with nothing to install.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Auto-instrument your application with [NestJS Observe](https://observe.nestjs.com). Distributed tracing, metrics, and logging made easy. Error tracking and performance monitoring for your NestJS applications.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- [CNicolas-97](https://github.com/CNicolas-97)
+- [leanNunez](https://github.com/leanNunez)
+- [lourdesrodriguez071102-ui](https://github.com/lourdesrodriguez071102-ui)
