@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
+import { UsersService } from './users.service.js';
+import { UsersController } from './users.controller.js';
 
-// Personal de la Dirección: datos y rol de cada usuario. Las cuentas las
-// crea dirección (create-user); el ingreso está en AuthModule.
 @Module({
-  controllers: [],
-  providers: [],
+  controllers: [UsersController],
+  providers: [UsersService],
 })
 export class UsersModule {}

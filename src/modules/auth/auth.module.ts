@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
+import { AuthService } from './auth.service.js';
+import { AuthController } from './auth.controller.js';
 
-// Autenticación y permisos: login con JWT, guard global (todo protegido salvo
-// @Public()) y control de acceso por rol con @Roles().
 @Module({
-  controllers: [],
-  providers: [],
+  controllers: [AuthController],
+  providers: [AuthService],
 })
 export class AuthModule {}

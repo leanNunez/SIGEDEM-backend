@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
+import { PlansService } from './plans.service.js';
+import { PlansController } from './plans.controller.js';
 
-// Planes del abono (individual, familiar, familia numerosa).
 @Module({
-  controllers: [],
-  providers: [],
+  controllers: [PlansController],
+  providers: [PlansService],
 })
 export class PlansModule {}

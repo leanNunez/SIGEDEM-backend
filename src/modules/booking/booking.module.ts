@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
+import { BookingService } from './booking.service.js';
+import { BookingController } from './booking.controller.js';
 
-// Alquiler de canchas de fútbol y vóley por día y horario.
 @Module({
-  controllers: [],
-  providers: [],
+  controllers: [BookingController],
+  providers: [BookingService],
 })
 export class BookingModule {}

@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
+import { EnrollmentService } from './enrollment.service.js';
+import { EnrollmentController } from './enrollment.controller.js';
 
-// Inscripciones de vecinos al abono.
 @Module({
-  controllers: [],
-  providers: [],
+  controllers: [EnrollmentController],
+  providers: [EnrollmentService],
 })
 export class EnrollmentModule {}
