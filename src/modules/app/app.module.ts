@@ -7,7 +7,12 @@ import { UsersModule } from '../users/users.module.js';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 
-// Módulo raíz: reúne los módulos del dominio. Cada uno declara sus rutas.
+// QUÉ ES: el módulo raíz: reúne todos los módulos de la API.
+// NIVEL: módulo — junta controllers, services y otros módulos.
+// DÓNDE SE USA: main.ts lo usa para crear la app; también los tests e2e.
+
+// @Module le dice a Nest qué módulos importa y qué controllers y services
+// tiene este. Cada módulo importado declara sus propias rutas.
 @Module({
   imports: [
     AuthModule,
