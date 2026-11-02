@@ -15,7 +15,7 @@ npm install
 npm run start:dev
 ```
 
-La API queda disponible en http://localhost:3000/api
+La API queda disponible en http://localhost:4000/api
 
 ## Scripts
 
@@ -33,10 +33,12 @@ La API queda disponible en http://localhost:3000/api
 
 Van en un `.env` en la raíz, que **no** se sube a git. Es opcional: sin `.env` se usan los valores por defecto de `src/shared/config/env.ts`.
 
-| Variable       | Para qué sirve                                    | Por defecto             |
-| -------------- | ------------------------------------------------- | ----------------------- |
-| `PORT`         | Puerto donde escucha la API                       | `3000`                  |
-| `FRONTEND_URL` | Origen del front que puede llamar a la API (CORS) | `http://localhost:5173` |
+| Variable       | Para qué sirve                                    | Por defecto                                             |
+| -------------- | ------------------------------------------------- | ------------------------------------------------------- |
+| `PORT`         | Puerto donde escucha la API                       | `4000`                                                  |
+| `DATABASE_URL` | Conexión a PostgreSQL                             | `postgresql://postgres:postgres@localhost:5432/sigedem` |
+| `API_BASE_URL` | URL base de la API                                | `http://localhost:4000/api`                             |
+| `FRONTEND_URL` | Origen del front que puede llamar a la API (CORS) | `http://localhost:5173`                                 |
 
 ## Estructura
 
@@ -45,6 +47,10 @@ Organizada por dominio (screaming architecture), igual que el front: al abrir `s
 ```
 src/
   modules/
+    app/                     Módulo raíz: reúne los módulos y expone GET /api
+      app.controller.ts
+      app.module.ts
+      app.service.ts
     auth/                    Ingreso y permisos
       login/                 POST /api/auth/login (JWT)
       guards/                Guard global y control por rol
@@ -67,7 +73,6 @@ src/
   shared/                    Lo que usan varios módulos
     config/                  env.ts y setup-app.ts
     database/
-  app.module.ts              Reúne los módulos
   main.ts                    Solo arranca la app
 ```
 
