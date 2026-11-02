@@ -1,6 +1,6 @@
 # Cómo escribimos el código en SIGEDEM-backend
 
-Esta guía es el acuerdo del equipo para que todo el código se lea igual, lo escriba una persona o Claude. La idea es que **cualquiera del equipo pueda abrir un archivo y explicarlo en la defensa**. Si algo no está acá, se copia el estilo del módulo más parecido que ya exista.
+Esta guía es el acuerdo del equipo para que todo el código se lea igual, sin importar quién lo escriba. La idea es que **cualquiera del equipo pueda abrir un archivo y explicarlo en la defensa**. Si algo no está acá, se copia el estilo del módulo más parecido que ya exista.
 
 ## Las reglas en una tabla
 
@@ -326,27 +326,6 @@ docs(readme): explico cómo crear la base
 ```
 
 **Cada PR** tiene estas secciones: _Qué cambia_, _Cómo probarlo_, _Pruebas realizadas_ (como checklist) y _A tener en cuenta_.
-
-## Cómo pedirle código a Claude
-
-Claude lee solo el archivo `CLAUDE.md` de la raíz, que lo manda a esta guía. Aun así, conviene ser concreto en el pedido:
-
-```
-Creá el módulo courts siguiendo docs/CONVENCIONES.md: entity y DTOs con los
-campos de la tabla courts de database/schema.sql, y GET /api/courts y
-GET /api/courts/:id.
-```
-
-```
-Explicame plans.service.ts línea por línea, como para alguien que recién
-empieza con Nest.
-```
-
-```
-Revisá que bookings.service.ts cumpla docs/CONVENCIONES.md y decime qué falta.
-```
-
-Siempre hay que **leer y entender lo que generó** antes de commitear: en la defensa explicamos nosotros, no Claude.
 
 ## Checklist antes de abrir un PR
 
