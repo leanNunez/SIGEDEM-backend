@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module.js';
+import { AppModule } from './modules/app/app.module.js';
 import { env } from './shared/config/env.js';
 import { setupApp } from './shared/config/setup-app.js';
 
@@ -9,5 +9,6 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   setupApp(app);
   await app.listen(env.port);
+  console.log(`API disponible en ${env.apiBaseUrl}`);
 }
 await bootstrap();
