@@ -1,5 +1,10 @@
 import { existsSync } from 'node:fs';
 
+// QUÉ ES: las variables de entorno de la API, leídas en un solo lugar.
+// NIVEL: configuración — no tiene lógica, solo valores.
+// DÓNDE SE USA: main.ts (puerto) y setup-app.ts (CORS).
+// A FUTURO: databaseUrl se usa cuando conectemos la API a PostgreSQL.
+
 // Node no lee el .env solo: acá se cargan sus valores en process.env.
 if (existsSync('.env')) process.loadEnvFile('.env');
 
