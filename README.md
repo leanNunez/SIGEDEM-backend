@@ -80,13 +80,14 @@ src/
 
 ## Flujo de trabajo
 
-| Rama                                   | Uso                                                  |
-| -------------------------------------- | ---------------------------------------------------- |
-| `main`                                 | Producción                                           |
-| `develop`                              | Integración del desarrollo                           |
-| `feat/*`, `fix/*`, `chore/*`, `docs/*` | Una rama por tarea, con Pull Request hacia `develop` |
+| Rama                                         | Uso                                              |
+| -------------------------------------------- | ------------------------------------------------ |
+| `main`                                       | Versión estable                                  |
+| `dev`                                        | Integración del desarrollo                       |
+| `feature/*`, `fix/*`, `refactor/*`, `docs/*` | Una rama por tarea, con Pull Request hacia `dev` |
 
-- Los commits siguen [Conventional Commits](https://www.conventionalcommits.org/es/v1.0.0/) (`feat:`, `fix:`, `docs:`, `chore:`).
+- Los commits siguen [Conventional Commits](https://www.conventionalcommits.org/es/v1.0.0/) (`feat:`, `fix:`, `docs:`, `refactor:`).
+- Cómo escribimos el código: [docs/CONVENCIONES.md](docs/CONVENCIONES.md).
 - Cada Pull Request lo revisa y aprueba otro integrante del equipo antes de mergear.
 
 ## Equipo
