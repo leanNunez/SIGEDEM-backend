@@ -31,9 +31,9 @@ La API queda disponible en http://localhost:4000/api. Para comprobar que anda, a
 
 Los scripts están en `database/`:
 
-| Archivo      | Qué hace                                                                  |
-| ------------ | ------------------------------------------------------------------------- |
-| `schema.sql` | Crea las tablas (si ya existen, las borra y las vuelve a crear)           |
+| Archivo      | Qué hace                                                                    |
+| ------------ | --------------------------------------------------------------------------- |
+| `schema.sql` | Crea las tablas (si ya existen, las borra y las vuelve a crear)             |
 | `seed.sql`   | Carga datos de ejemplo, al menos 5 registros por tabla (personas ficticias) |
 
 Para crear la base desde cero (pide la contraseña del usuario `postgres`):
@@ -83,14 +83,14 @@ FRONTEND_URL=http://localhost:5173
 
 Todas las rutas cuelgan de `/api`. Por ahora los módulos tienen la estructura armada pero **sin lógica de negocio**: responden un texto de prueba y todavía no leen la base.
 
-| Recurso      | Ruta              | Métodos                                                         | Estado      |
-| ------------ | ----------------- | --------------------------------------------------------------- | ----------- |
-| Estado       | `/api`            | `GET`                                                           | ✅ Funciona |
-| Planes       | `/api/plans`      | `GET` lista · `GET /:id` · `POST` · `PATCH /:id` · `DELETE /:id` | 🚧 Esqueleto |
-| Inscripciones | `/api/enrollment` | ídem                                                            | 🚧 Esqueleto |
-| Canchas      | `/api/booking`    | ídem                                                            | 🚧 Esqueleto |
-| Usuarios     | `/api/users`      | ídem                                                            | 🚧 Esqueleto |
-| Ingreso      | `/api/auth`       | ídem                                                            | 🚧 Esqueleto |
+| Recurso       | Ruta              | Métodos                                                          | Estado       |
+| ------------- | ----------------- | ---------------------------------------------------------------- | ------------ |
+| Estado        | `/api`            | `GET`                                                            | ✅ Funciona  |
+| Planes        | `/api/plans`      | `GET` lista · `GET /:id` · `POST` · `PATCH /:id` · `DELETE /:id` | 🚧 Esqueleto |
+| Inscripciones | `/api/enrollment` | ídem                                                             | 🚧 Esqueleto |
+| Canchas       | `/api/booking`    | ídem                                                             | 🚧 Esqueleto |
+| Usuarios      | `/api/users`      | ídem                                                             | 🚧 Esqueleto |
+| Ingreso       | `/api/auth`       | ídem                                                             | 🚧 Esqueleto |
 
 ## Pruebas con Postman
 
@@ -146,13 +146,14 @@ plans/
 
 ## Flujo de trabajo
 
-| Rama                                   | Uso                                              |
-| -------------------------------------- | ------------------------------------------------ |
-| `main`                                 | Producción                                       |
-| `dev`                                  | Integración del desarrollo                       |
-| `feature/*`, `fix/*`, `chore/*`, `docs/*` | Una rama por tarea, con Pull Request hacia `dev` |
+| Rama                                         | Uso                                                  |
+| -------------------------------------------- | ---------------------------------------------------- |
+| `main`                                       | Versión estable (la entrega); recibe PRs desde `dev` |
+| `dev`                                        | Integración del equipo                               |
+| `feature/*`, `fix/*`, `refactor/*`, `docs/*` | Una rama por tarea, con Pull Request hacia `dev`     |
 
-- Los commits siguen [Conventional Commits](https://www.conventionalcommits.org/es/v1.0.0/) (`feat:`, `fix:`, `docs:`, `chore:`).
+- Cómo escribimos el código: [docs/CONVENCIONES.md](docs/CONVENCIONES.md).
+- Los commits siguen [Conventional Commits](https://www.conventionalcommits.org/es/v1.0.0/), en español y en primera persona (`feat(plans): agrego GET /api/plans/:id`).
 - Cada Pull Request lo revisa y aprueba otro integrante del equipo antes de mergear.
 
 ## Equipo
