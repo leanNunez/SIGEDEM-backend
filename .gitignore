@@ -4,6 +4,9 @@ dist/
 coverage/
 *.tsbuildinfo
 
+# Cliente de Prisma (se genera con npx prisma generate)
+src/generated/
+
 # Variables de entorno (nunca al repo)
 .env
 .env.*
