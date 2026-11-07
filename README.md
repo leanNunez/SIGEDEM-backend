@@ -9,14 +9,14 @@ API del **Sistema Integral de Gestión Deportiva Municipal (SIGEDEM)** para la D
 | Capa          | Herramienta                       |
 | ------------- | --------------------------------- |
 | Framework     | NestJS 12 + TypeScript            |
-| Base de datos | PostgreSQL 18                     |
+| Base de datos | PostgreSQL 17 + Prisma 7 (ORM)    |
 | Tests         | Vitest (unitarios y e2e)          |
 | Calidad       | oxlint + Prettier                 |
 | Pruebas API   | Postman (colección en `postman/`) |
 
 ## Inicio rápido
 
-Requisitos: **Node.js 20.19+** (o 22.12+), **npm** y **PostgreSQL 18**.
+Requisitos: **Node.js 20.19+** (o 22.12+), **npm** y **Docker** (o **PostgreSQL 17+** instalado).
 
 ```bash
 git clone https://github.com/leanNunez/SIGEDEM-backend.git
@@ -24,6 +24,8 @@ cd SIGEDEM-backend
 npm install
 npm run start:dev
 ```
+
+`npm install` también corre `prisma generate` (script `postinstall`), que arma el cliente de Prisma en `src/generated/prisma` a partir de `prisma/schema.prisma`. Antes de levantar la API, la base tiene que estar creada (ver [Base de datos](#base-de-datos)).
 
 La API queda disponible en http://localhost:4000/api. Para comprobar que anda, abrí esa dirección en el navegador: tiene que responder `API de SIGEDEM funcionando`.
 
@@ -36,6 +38,20 @@ Los scripts están en `database/`:
 | `schema.sql` | Crea las tablas (si ya existen, las borra y las vuelve a crear)             |
 | `seed.sql`   | Carga datos de ejemplo, al menos 5 registros por tabla (personas ficticias) |
 
+### Opción 1: con Docker (recomendada)
+
+No hace falta instalar PostgreSQL. Se levanta un contenedor con los mismos datos de conexión que usa la API por defecto (usuario `postgres`, contraseña `postgres`, base `sigedem`):
+
+```bash
+docker run -d --name sigedem-postgres -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=sigedem -p 5432:5432 -v sigedem-pgdata:/var/lib/postgresql/data postgres:17-alpine
+docker exec -i sigedem-postgres psql -U postgres -d sigedem < database/schema.sql
+docker exec -i sigedem-postgres psql -U postgres -d sigedem < database/seed.sql
+```
+
+Los datos quedan guardados en el volumen `sigedem-pgdata`, así que sobreviven aunque se borre el contenedor. Para volver a los datos de ejemplo, se corren otra vez los dos `docker exec`. Otro día alcanza con `docker start sigedem-postgres`.
+
+### Opción 2: con PostgreSQL instalado
+
 Para crear la base desde cero (pide la contraseña del usuario `postgres`):
 
 ```bash
@@ -45,6 +61,8 @@ psql -U postgres -d sigedem -f database/seed.sql
 ```
 
 > En Windows, si `psql` no se reconoce, usá la ruta completa: `"C:\Program Files\PostgreSQL\18\bin\psql.exe"`. También se pueden abrir los archivos desde pgAdmin (Query Tool) y ejecutarlos en el mismo orden.
+
+La API se conecta con Prisma: `prisma/schema.prisma` describe cada tabla y `src/shared/database/prisma.service.ts` es la conexión que usan todos los módulos. Las tablas se crean con `schema.sql`, no con migraciones de Prisma.
 
 Tablas, agrupadas por tema:
 
@@ -81,16 +99,31 @@ FRONTEND_URL=http://localhost:5173
 
 ## Endpoints
 
-Todas las rutas cuelgan de `/api`. Por ahora los módulos tienen la estructura armada pero **sin lógica de negocio**: responden un texto de prueba y todavía no leen la base.
+Todas las rutas cuelgan de `/api` y leen y escriben en PostgreSQL. Los siete recursos de datos tienen el CRUD completo; Ingreso todavía es el esqueleto de Nest:
 
-| Recurso       | Ruta              | Métodos                                                          | Estado       |
-| ------------- | ----------------- | ---------------------------------------------------------------- | ------------ |
-| Estado        | `/api`            | `GET`                                                            | ✅ Funciona  |
-| Planes        | `/api/plans`      | `GET` lista · `GET /:id` · `POST` · `PATCH /:id` · `DELETE /:id` | 🚧 Esqueleto |
-| Inscripciones | `/api/enrollment` | ídem                                                             | 🚧 Esqueleto |
-| Canchas       | `/api/booking`    | ídem                                                             | 🚧 Esqueleto |
-| Usuarios      | `/api/users`      | ídem                                                             | 🚧 Esqueleto |
-| Ingreso       | `/api/auth`       | ídem                                                             | 🚧 Esqueleto |
+| Recurso       | Ruta               | Id                 | Estado       |
+| ------------- | ------------------ | ------------------ | ------------ |
+| Estado        | `/api`             | —                  | ✅ Funciona  |
+| Planes        | `/api/plans`       | texto (`familiar`) | ✅ Funciona  |
+| Usuarios      | `/api/users`       | número             | ✅ Funciona  |
+| Personas      | `/api/persons`     | número             | ✅ Funciona  |
+| Inscripciones | `/api/enrollments` | número             | ✅ Funciona  |
+| Pagos         | `/api/payments`    | número             | ✅ Funciona  |
+| Canchas       | `/api/courts`      | texto (`futbol-5`) | ✅ Funciona  |
+| Reservas      | `/api/bookings`    | número             | ✅ Funciona  |
+| Ingreso       | `/api/auth`        | —                  | 🚧 Esqueleto |
+
+Métodos de cada recurso CRUD: `GET` lista · `GET /:id` · `POST` · `PATCH /:id` · `DELETE /:id`.
+
+| Respuesta | Cuándo                                                                                        |
+| --------- | --------------------------------------------------------------------------------------------- |
+| `400`     | El body no cumple las reglas del DTO, trae campos de más, o el id numérico no es un número    |
+| `404`     | No existe un registro con ese id                                                              |
+| `409`     | Dato repetido (DNI, email, id) o relación inválida (FK inexistente o registro todavía en uso) |
+
+- Las fechas se mandan como `AAAA-MM-DD` (`"2026-11-05"`) y vuelven en formato ISO (`"2026-11-05T00:00:00.000Z"`).
+- Los montos (`amount`, `price`, `memberPrice`, `publicPrice`) se mandan como número y vuelven como texto (`"18000"`), porque en la base son `NUMERIC`.
+- `users` recibe `password` y la guarda hasheada; la API nunca devuelve `passwordHash`.
 
 ## Pruebas con Postman
 
@@ -102,6 +135,8 @@ En `postman/` están la colección y el entorno, listos para importar:
 
 La URL base sale de la variable `baseUrl` del entorno (`http://localhost:4000/api`). Cada pedido trae un test que revisa que la respuesta sea exitosa. Para correrlos todos juntos: clic derecho en la colección → **Run collection**.
 
+Cada carpeta tiene 5 pedidos que se corren en orden: **Listar**, **Ver uno** (un registro del seed), **Crear**, **Editar** y **Borrar**. Editar y Borrar trabajan sobre el registro que acaba de crear Crear, así la base vuelve a quedar como el seed. Para los recursos con id numérico, Crear guarda el id nuevo en una variable de la colección (`userId`, `personId`, etc.).
+
 ## Estructura
 
 Organizada por dominio, igual que el front: al abrir `src/modules/` se ve de qué trata el sistema. Cada módulo se generó con `nest g resource` y está separado por capas.
@@ -112,14 +147,19 @@ src/
     app/             Módulo raíz: reúne los módulos y expone GET /api
     auth/            Ingreso y permisos
     users/           Personal de la Dirección y sus roles
+    persons/         Padrón de vecinos
     plans/           Planes del abono
-    enrollment/      Inscripciones
-    booking/         Alquiler de canchas
+    enrollments/     Inscripciones
+    payments/        Pagos informados de las inscripciones
+    courts/          Canchas en alquiler
+    bookings/        Reservas de canchas
   shared/            Lo que usan varios módulos
     config/          env.ts y setup-app.ts
-    database/        Conexión a PostgreSQL (próximamente)
+    database/        Conexión a PostgreSQL con Prisma y filtro de errores de la base
+  generated/prisma/  Cliente de Prisma (lo genera npm install; no se sube a git)
   main.ts            Solo arranca la app
 database/            schema.sql y seed.sql
+prisma/              schema.prisma: el mapa de las tablas para Prisma
 postman/             Colección y entorno de Postman
 ```
 
@@ -139,8 +179,9 @@ plans/
 
 ## Próximos pasos
 
-- [ ] Conectar la API a PostgreSQL.
-- [ ] Lógica real en planes, inscripciones y alquiler de canchas.
+- [x] Conectar la API a PostgreSQL.
+- [x] CRUD de planes, usuarios, personas, inscripciones, pagos, canchas y reservas.
+- [ ] Reglas de negocio: crear el abono al acreditar un pago, calcular el precio de una reserva, no reservar turnos pasados.
 - [ ] Login con JWT y permisos por rol (operador, coordinador, médico, dirección).
 - [ ] Conectar el front a esta API en lugar de json-server.
 
