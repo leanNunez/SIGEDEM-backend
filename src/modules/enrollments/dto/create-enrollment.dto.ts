@@ -16,7 +16,8 @@ import { DATE_ONLY_PATTERN } from '../../../shared/validation/date-pattern.js';
 // DÓNDE SE USA: EnrollmentsController lo recibe en POST /api/enrollments.
 // Los datos se guardan en la tabla enrollments (ver EnrollmentsService).
 
-// Cada decorador repite una regla de la tabla enrollments (database/schema.sql).
+// Cada decorador repite una regla de la tabla enrollments (prisma/schema.prisma y los
+// CHECK de la migración init).
 // loadedAt no va acá: la base lo completa sola con la fecha y hora de carga.
 
 // Los mismos valores que permite el CHECK de la columna status.

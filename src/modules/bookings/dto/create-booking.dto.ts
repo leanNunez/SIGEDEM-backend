@@ -21,7 +21,7 @@ import { DATE_ONLY_PATTERN } from '../../../shared/validation/date-pattern.js';
 // van a la tabla renters (una fila por DNI; ver BookingsService).
 
 // Cada decorador repite una regla de las tablas bookings y renters
-// (database/schema.sql).
+// (prisma/schema.prisma y los CHECK de la migración init).
 // Así el error se detecta acá y la API responde 400 con un mensaje claro,
 // antes de que el dato llegue a la base.
 

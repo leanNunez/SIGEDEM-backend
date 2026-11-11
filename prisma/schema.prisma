@@ -1,13 +1,20 @@
-// QUÉ ES: el mapa de la base para Prisma: cada model es una tabla de database/schema.sql.
-// NIVEL: base de datos — Prisma genera el cliente (src/generated/prisma) a partir de este archivo.
-// DÓNDE SE USA: npx prisma generate lo lee; PrismaService usa el cliente generado.
+// QUÉ ES: la estructura de la base: cada model es una tabla de PostgreSQL.
+// NIVEL: base de datos — es la fuente de verdad de las tablas. A partir de este
+// archivo Prisma genera el cliente (src/generated/prisma) y las migraciones.
+// DÓNDE SE USA: npx prisma generate y npx prisma migrate dev lo leen;
+// PrismaService usa el cliente generado.
 //
-// La base se crea con database/schema.sql, no con migraciones de Prisma.
-// Si cambia una tabla, se actualiza schema.sql, se recrea la base y se ajusta acá.
+// Las tablas se crean con las migraciones de prisma/migrations (npx prisma
+// migrate dev). Si cambia una tabla: se edita este archivo y se corre
+// npx prisma migrate dev --name <qué-cambia>, que crea una migración nueva.
 //
 // Los models y campos tienen nombres de TypeScript (Plan, discountNote).
 // @@map y @map dicen cómo se llaman de verdad en la base (plans, discount_note).
-// Los CHECK de la base (estados, montos > 0) Prisma no los ve: los validan los DTOs.
+//
+// Los CHECK de la base (estados, montos > 0, formato del DNI) no se pueden
+// escribir acá: están al final de la migración init, agregados a mano, y los
+// DTOs repiten esas reglas. Un CHECK nuevo se agrega igual: se crea la
+// migración con --create-only, se le suma el ALTER TABLE y después se aplica.
 
 generator client {
   provider            = "prisma-client"
@@ -20,6 +27,7 @@ datasource db {
   provider = "postgresql"
 }
 
+// Roles: los actores primarios del diagrama de casos de uso (versión 2).
 model Role {
   id          Int    @id @default(autoincrement())
   name        String @unique @db.VarChar(30)
@@ -29,6 +37,7 @@ model Role {
   @@map("roles")
 }
 
+// Cuentas de quienes usan el sistema.
 model User {
   id                   Int                  @id @default(autoincrement())
   roleId               Int                  @map("role_id")
@@ -45,6 +54,7 @@ model User {
   @@map("users")
 }
 
+// Grupo familiar: cada persona integra como mucho uno.
 model FamilyGroup {
   id         Int      @id @default(autoincrement())
   name       String   @db.VarChar(60)
@@ -54,6 +64,7 @@ model FamilyGroup {
   @@map("family_groups")
 }
 
+// Padrón único de vecinos: cada DNI aparece una sola vez.
 model Person {
   id                  Int                  @id @default(autoincrement())
   familyGroupId       Int?                 @map("family_group_id")
@@ -72,6 +83,8 @@ model Person {
   @@map("persons")
 }
 
+// Planes del abono. Los campos son los que muestra el front en /planes; el
+// precio mensual no va acá porque cambia con cada cuadro tarifario.
 model Plan {
   id           String       @id @db.VarChar(30)
   name         String       @unique @db.VarChar(60)
@@ -86,6 +99,7 @@ model Plan {
   @@map("plans")
 }
 
+// Temporada del abono.
 model Season {
   id         Int         @id @default(autoincrement())
   name       String      @unique @db.VarChar(40)
@@ -96,6 +110,8 @@ model Season {
   @@map("seasons")
 }
 
+// Cuadro tarifario: los precios que rigen en una temporada, según la
+// resolución municipal.
 model RateTable {
   id         Int     @id @default(autoincrement())
   seasonId   Int     @map("season_id")
@@ -106,6 +122,7 @@ model RateTable {
   @@map("rate_tables")
 }
 
+// Precio de cada plan dentro de un cuadro tarifario.
 model Price {
   rateTableId Int       @map("rate_table_id")
   planId      String    @map("plan_id") @db.VarChar(30)
@@ -117,6 +134,9 @@ model Price {
   @@map("prices")
 }
 
+// Solicitud de inscripción: existe desde que el vecino se anota, aunque
+// todavía no haya pagado. procedureDate es la fecha real del trámite y
+// loadedAt cuándo se cargó (difieren si se tomó en papel).
 model Enrollment {
   id            Int         @id @default(autoincrement())
   personId      Int         @map("person_id")
@@ -131,10 +151,13 @@ model Enrollment {
   membership    Membership?
   payments      Payment[]
 
+  // Evita cargar dos veces el mismo formulario de papel.
   @@unique([personId, planId, procedureDate])
   @@map("enrollments")
 }
 
+// Pago informado: el dinero no pasa por el complejo, se registra la
+// transferencia. El número de operación único detecta comprobantes repetidos.
 model Payment {
   id              Int        @id @default(autoincrement())
   enrollmentId    Int        @map("enrollment_id")
@@ -150,6 +173,8 @@ model Payment {
   @@map("payments")
 }
 
+// Abono: recién existe cuando el pago está acreditado. Una inscripción
+// origina como mucho un abono, con su constancia numerada.
 model Membership {
   id                Int                @id @default(autoincrement())
   enrollmentId      Int                @unique @map("enrollment_id")
@@ -163,6 +188,8 @@ model Membership {
   @@map("memberships")
 }
 
+// Un abono cubre a una o más personas (plan familiar) y una persona puede
+// tener varios abonos en el tiempo: relación muchos a muchos.
 model MembershipMember {
   membershipId Int        @map("membership_id")
   personId     Int        @map("person_id")
@@ -174,18 +201,21 @@ model MembershipMember {
   @@map("membership_members")
 }
 
+// Carnet de cada persona cubierta por un abono.
 model Carnet {
   id               Int              @id @default(autoincrement())
   membershipId     Int              @map("membership_id")
   personId         Int              @map("person_id")
   number           String           @unique @db.VarChar(20)
   status           String           @default("vigente") @db.VarChar(20)
+  // FK compuesta: el carnet solo puede ser de alguien cubierto por ese abono.
   membershipMember MembershipMember @relation(fields: [membershipId, personId], references: [membershipId, personId], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([membershipId, personId])
   @@map("carnets")
 }
 
+// Aptos médicos: se guarda el historial, por eso una persona puede tener varios.
 model MedicalCertificate {
   id         Int      @id @default(autoincrement())
   personId   Int      @map("person_id")
@@ -198,6 +228,7 @@ model MedicalCertificate {
   @@map("medical_certificates")
 }
 
+// Consentimiento para tratar datos de salud, otorgado por el vecino o su tutor.
 model Consent {
   id       Int      @id @default(autoincrement())
   personId Int      @map("person_id")
@@ -208,6 +239,7 @@ model Consent {
   @@map("consents")
 }
 
+// Canchas en alquiler. units es cuántas canchas iguales hay de cada tipo.
 model Court {
   id          String    @id @db.VarChar(30)
   activity    String    @db.VarChar(20)
@@ -221,6 +253,10 @@ model Court {
   @@map("courts")
 }
 
+// Quien alquila una cancha. No va a persons porque el alquiler también está
+// abierto a quien no es socio. Sus datos se guardan una sola vez por DNI: si
+// estuvieran en bookings, el nombre y el teléfono dependerían del DNI y no de
+// la reserva (dependencia transitiva), y se repetirían en cada reserva (3FN).
 model Renter {
   id       Int       @id @default(autoincrement())
   dni      String    @unique @db.VarChar(8)
@@ -231,6 +267,10 @@ model Renter {
   @@map("renters")
 }
 
+// Reserva de un turno de una hora. isMember y price son una foto del momento
+// de la reserva: si después el que alquila deja de ser socio o cambia el
+// precio de la cancha, la reserva conserva lo que se cobró. Por eso dependen
+// de la reserva y van acá.
 model Booking {
   id          Int      @id @default(autoincrement())
   courtId     String   @map("court_id") @db.VarChar(30)
@@ -243,6 +283,7 @@ model Booking {
   court       Court    @relation(fields: [courtId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   renter      Renter   @relation(fields: [renterId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
+  // Una misma cancha no se puede reservar dos veces en el mismo turno.
   @@unique([courtId, courtNumber, date, hour])
   @@map("bookings")
 }

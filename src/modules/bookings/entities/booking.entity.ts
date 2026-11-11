@@ -1,7 +1,7 @@
 import type { Booking, Renter } from '../../../generated/prisma/client.js';
 
 // QUÉ ES: cómo es una reserva de cancha (un turno de una hora) y quién la hizo.
-// NIVEL: entity — refleja las tablas bookings y renters de database/schema.sql.
+// NIVEL: entity — refleja las tablas bookings y renters (prisma/schema.prisma).
 // DÓNDE SE USA: BookingsService y BookingsController devuelven objetos con esta forma.
 
 // Los tipos los genera Prisma a partir de los models Booking y Renter de

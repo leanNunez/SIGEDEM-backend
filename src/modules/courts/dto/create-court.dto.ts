@@ -16,7 +16,8 @@ import {
 // DÓNDE SE USA: CourtsController lo recibe en POST /api/courts.
 // Los datos se guardan en la tabla courts (ver CourtsService).
 
-// Cada decorador repite una regla de la tabla courts (database/schema.sql).
+// Cada decorador repite una regla de la tabla courts (prisma/schema.prisma y los
+// CHECK de la migración init).
 // La regla que compara dos campos (public_price >= member_price) la revisa
 // CourtsService, porque al editar puede venir uno solo de los dos precios.
 

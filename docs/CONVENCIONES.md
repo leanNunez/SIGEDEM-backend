@@ -145,7 +145,7 @@ Para un módulo nuevo, se copia esta plantilla y se cambian los nombres.
 
 ```ts
 // QUÉ ES: cómo es un plan del abono.
-// NIVEL: entity — refleja la tabla plans de database/schema.sql.
+// NIVEL: entity — refleja la tabla plans (prisma/schema.prisma).
 // DÓNDE SE USA: PlansService devuelve objetos con esta forma.
 
 export class Plan {
@@ -288,22 +288,24 @@ export class PlansController {
 
 > **Ids numéricos:** si el id de la tabla es `SERIAL` (un número), se usa `@Param('id', ParseIntPipe) id: number`, no `+id`. `ParseIntPipe` convierte el texto en número y responde 400 si no lo es.
 
-## Base de datos (SQL)
+## Base de datos
 
-Los scripts están en `database/`: primero se corre `schema.sql` y después `seed.sql`.
+La estructura de las tablas está en `prisma/schema.prisma` y se crea con las migraciones de `prisma/migrations`. Los datos de ejemplo están en `database/seed.sql`.
 
-- **Cada tabla tiene un comentario** arriba que dice qué guarda.
-- **Cada restricción que no es obvia también** (`UNIQUE`, `CHECK`, FK compuestas): se explica qué evita.
-- Tablas en plural y snake_case; la clave primaria se llama `id`.
-- Si se agrega un estado nuevo (por ejemplo, en `status`), hay que actualizar el `CHECK` **y** el tipo de la entity.
+- **Cada model tiene un comentario** arriba que dice qué guarda la tabla.
+- **Cada restricción que no es obvia también** (`@@unique`, FK compuestas, `CHECK`): se explica qué evita.
+- Tablas en plural y snake_case (`@@map`, `@map`); la clave primaria se llama `id`.
+- Para cambiar una tabla se edita `schema.prisma` y se corre `npx prisma migrate dev --name <qué-cambia>`. Una migración ya aplicada no se edita: se crea otra.
+- Prisma no escribe los `CHECK`: se crea la migración con `--create-only`, se le agrega el `ALTER TABLE ... ADD CONSTRAINT ... CHECK (...)` con su comentario y después se aplica con `npx prisma migrate dev`.
+- Si se agrega un estado nuevo (por ejemplo, en `status`), hay que actualizar el `CHECK` (con una migración nueva), el DTO **y** el tipo de la entity.
 
-```sql
--- Reserva de un turno de una hora.
-CREATE TABLE bookings (
+```prisma
+// Reserva de un turno de una hora.
+model Booking {
   ...
-  -- Una misma cancha no se puede reservar dos veces en el mismo turno.
-  UNIQUE (court_id, court_number, date, hour)
-);
+  // Una misma cancha no se puede reservar dos veces en el mismo turno.
+  @@unique([courtId, courtNumber, date, hour])
+}
 ```
 
 ## Git

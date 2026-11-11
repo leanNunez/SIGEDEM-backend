@@ -1,5 +1,5 @@
 // QUÉ ES: cómo es una solicitud de inscripción al abono.
-// NIVEL: entity — refleja la tabla enrollments de database/schema.sql.
+// NIVEL: entity — refleja la tabla enrollments (prisma/schema.prisma).
 // DÓNDE SE USA: EnrollmentsService y EnrollmentsController devuelven objetos con esta forma.
 
 // El tipo lo genera Prisma a partir del model Enrollment de prisma/schema.prisma.

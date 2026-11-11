@@ -1,5 +1,6 @@
 -- SIGEDEM: datos de ejemplo, como mínimo 5 registros por tabla (TP 9).
--- Las personas son ficticias. Correr después de schema.sql.
+-- Las personas son ficticias. Se carga con npx prisma db seed, después de
+-- crear las tablas con la migración (npx prisma migrate dev).
 
 INSERT INTO roles (name, description) VALUES
   ('operador', 'Mesa de entrada: registra inscripciones y pagos informados'),

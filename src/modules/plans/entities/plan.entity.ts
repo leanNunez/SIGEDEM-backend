@@ -1,5 +1,5 @@
 // QUÉ ES: cómo es un plan del abono.
-// NIVEL: entity — refleja la tabla plans de database/schema.sql.
+// NIVEL: entity — refleja la tabla plans (prisma/schema.prisma).
 // DÓNDE SE USA: PlansService y PlansController devuelven objetos con esta forma.
 
 // El tipo lo genera Prisma a partir del model Plan de prisma/schema.prisma,

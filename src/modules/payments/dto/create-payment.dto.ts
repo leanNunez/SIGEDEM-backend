@@ -18,7 +18,8 @@ import { DATE_ONLY_PATTERN } from '../../../shared/validation/date-pattern.js';
 // DÓNDE SE USA: PaymentsController lo recibe en POST /api/payments.
 // Los datos se guardan en la tabla payments (ver PaymentsService).
 
-// Cada decorador repite una regla de la tabla payments (database/schema.sql).
+// Cada decorador repite una regla de la tabla payments (prisma/schema.prisma y los
+// CHECK de la migración init).
 // Así el error se detecta acá y la API responde 400 con un mensaje claro,
 // antes de que el dato llegue a la base.
 

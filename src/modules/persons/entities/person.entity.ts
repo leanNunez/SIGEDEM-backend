@@ -1,5 +1,5 @@
 // QUÉ ES: cómo es una persona del padrón de vecinos.
-// NIVEL: entity — refleja la tabla persons de database/schema.sql.
+// NIVEL: entity — refleja la tabla persons (prisma/schema.prisma).
 // DÓNDE SE USA: PersonsService y PersonsController devuelven objetos con esta forma.
 
 // El tipo lo genera Prisma a partir del model Person de prisma/schema.prisma.

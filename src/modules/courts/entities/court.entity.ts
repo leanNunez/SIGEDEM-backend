@@ -1,5 +1,5 @@
 // QUÉ ES: cómo es un tipo de cancha en alquiler.
-// NIVEL: entity — refleja la tabla courts de database/schema.sql.
+// NIVEL: entity — refleja la tabla courts (prisma/schema.prisma).
 // DÓNDE SE USA: CourtsService y CourtsController devuelven objetos con esta forma.
 
 // El tipo lo genera Prisma a partir del model Court de prisma/schema.prisma.

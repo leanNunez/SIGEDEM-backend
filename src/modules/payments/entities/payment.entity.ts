@@ -1,5 +1,5 @@
 // QUÉ ES: cómo es un pago informado (la transferencia de una inscripción).
-// NIVEL: entity — refleja la tabla payments de database/schema.sql.
+// NIVEL: entity — refleja la tabla payments (prisma/schema.prisma).
 // DÓNDE SE USA: PaymentsService y PaymentsController devuelven objetos con esta forma.
 
 // El tipo lo genera Prisma a partir del model Payment de prisma/schema.prisma.

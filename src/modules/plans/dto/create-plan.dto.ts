@@ -12,7 +12,8 @@ import {
 // DÓNDE SE USA: PlansController lo recibe en POST /api/plans.
 // Los datos se guardan en la tabla plans (ver PlansService).
 
-// Cada decorador repite una regla de la tabla plans (database/schema.sql).
+// Cada decorador repite una regla de la tabla plans (prisma/schema.prisma y los
+// CHECK de la migración init).
 // Así el error se detecta acá y la API responde 400 con un mensaje claro,
 // antes de que el dato llegue a la base.
 
