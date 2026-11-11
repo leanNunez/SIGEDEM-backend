@@ -24,7 +24,7 @@ const PRISMA_ERRORS: Record<string, () => HttpException> = {
   // a borrar todavía está en uso en otra tabla.
   P2003: () =>
     new ConflictException(
-      'El registro está relacionado con otro que no existe o que todavía lo usa',
+      'El registro está relacionado con otro que no existe o que todavía lo usa'
     ),
   // update o delete no encontraron el registro.
   P2025: () => new NotFoundException('No existe el registro pedido'),
@@ -39,7 +39,10 @@ export class PrismaExceptionFilter extends BaseExceptionFilter {
    * @param error - El error que tiró Prisma.
    * @param host - El contexto del pedido (lo da Nest).
    */
-  catch(error: Prisma.PrismaClientKnownRequestError, host: ArgumentsHost): void {
+  catch(
+    error: Prisma.PrismaClientKnownRequestError,
+    host: ArgumentsHost
+  ): void {
     const toHttpError = PRISMA_ERRORS[error.code];
     super.catch(toHttpError ? toHttpError() : error, host);
   }
