@@ -1,7 +1,9 @@
 import { ValidationPipe, type INestApplication } from '@nestjs/common';
+import { HttpAdapterHost } from '@nestjs/core';
+import { PrismaExceptionFilter } from '../database/prisma-exception.filter.js';
 import { env } from './env.js';
 
-// QUÉ ES: la configuración global de la app (prefijo, CORS y validación).
+// QUÉ ES: la configuración global de la app (prefijo, CORS, validación y errores).
 // NIVEL: configuración — vive acá para que main.ts quede limpio.
 // DÓNDE SE USA: main.ts y los tests e2e, así los dos levantan la app igual.
 
@@ -20,4 +22,7 @@ export function setupApp(app: INestApplication): void {
   app.useGlobalPipes(
     new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })
   );
+  // El filtro necesita el adaptador HTTP para poder armar la respuesta.
+  const { httpAdapter } = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new PrismaExceptionFilter(httpAdapter));
 }

@@ -1,0 +1,239 @@
+// QUÉ ES: el mapa de la base para Prisma: cada model es una tabla de database/schema.sql.
+// NIVEL: base de datos — Prisma genera el cliente (src/generated/prisma) a partir de este archivo.
+// DÓNDE SE USA: npx prisma generate lo lee; PrismaService usa el cliente generado.
+//
+// La base se crea con database/schema.sql, no con migraciones de Prisma.
+// Si cambia una tabla, se actualiza schema.sql, se recrea la base y se ajusta acá.
+//
+// Los models y campos tienen nombres de TypeScript (Plan, discountNote).
+// @@map y @map dicen cómo se llaman de verdad en la base (plans, discount_note).
+// Los CHECK de la base (estados, montos > 0) Prisma no los ve: los validan los DTOs.
+
+generator client {
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  moduleFormat        = "esm"
+  importFileExtension = "js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Role {
+  id          Int    @id @default(autoincrement())
+  name        String @unique @db.VarChar(30)
+  description String @db.VarChar(150)
+  users       User[]
+
+  @@map("roles")
+}
+
+model User {
+  id                   Int                  @id @default(autoincrement())
+  roleId               Int                  @map("role_id")
+  fullName             String               @map("full_name") @db.VarChar(100)
+  email                String               @unique @db.VarChar(120)
+  passwordHash         String               @map("password_hash") @db.VarChar(255)
+  isActive             Boolean              @default(true) @map("is_active")
+  createdAt            DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  role                 Role                 @relation(fields: [roleId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  createdEnrollments   Enrollment[]
+  recordedCertificates MedicalCertificate[]
+  verifiedPayments     Payment[]
+
+  @@map("users")
+}
+
+model FamilyGroup {
+  id         Int      @id @default(autoincrement())
+  name       String   @db.VarChar(60)
+  maxMembers Int      @map("max_members") @db.SmallInt
+  persons    Person[]
+
+  @@map("family_groups")
+}
+
+model Person {
+  id                  Int                  @id @default(autoincrement())
+  familyGroupId       Int?                 @map("family_group_id")
+  dni                 String               @unique @db.VarChar(8)
+  firstName           String               @map("first_name") @db.VarChar(60)
+  lastName            String               @map("last_name") @db.VarChar(60)
+  birthDate           DateTime             @map("birth_date") @db.Date
+  email               String?              @db.VarChar(120)
+  phone               String?              @db.VarChar(30)
+  familyGroup         FamilyGroup?         @relation(fields: [familyGroupId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  consents            Consent[]
+  enrollments         Enrollment[]
+  medicalCertificates MedicalCertificate[]
+  memberships         MembershipMember[]
+
+  @@map("persons")
+}
+
+model Plan {
+  id           String       @id @db.VarChar(30)
+  name         String       @unique @db.VarChar(60)
+  type         String       @db.VarChar(20)
+  people       String       @db.VarChar(40)
+  description  String       @db.VarChar(200)
+  discountNote String?      @map("discount_note") @db.VarChar(200)
+  badge        String?      @db.VarChar(40)
+  enrollments  Enrollment[]
+  prices       Price[]
+
+  @@map("plans")
+}
+
+model Season {
+  id         Int         @id @default(autoincrement())
+  name       String      @unique @db.VarChar(40)
+  startDate  DateTime    @map("start_date") @db.Date
+  endDate    DateTime    @map("end_date") @db.Date
+  rateTables RateTable[]
+
+  @@map("seasons")
+}
+
+model RateTable {
+  id         Int     @id @default(autoincrement())
+  seasonId   Int     @map("season_id")
+  resolution String  @unique @db.VarChar(40)
+  season     Season  @relation(fields: [seasonId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  prices     Price[]
+
+  @@map("rate_tables")
+}
+
+model Price {
+  rateTableId Int       @map("rate_table_id")
+  planId      String    @map("plan_id") @db.VarChar(30)
+  amount      Decimal   @db.Decimal(10, 2)
+  plan        Plan      @relation(fields: [planId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  rateTable   RateTable @relation(fields: [rateTableId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([rateTableId, planId])
+  @@map("prices")
+}
+
+model Enrollment {
+  id            Int         @id @default(autoincrement())
+  personId      Int         @map("person_id")
+  planId        String      @map("plan_id") @db.VarChar(30)
+  createdBy     Int         @map("created_by")
+  status        String      @default("pendiente") @db.VarChar(20)
+  procedureDate DateTime    @map("procedure_date") @db.Date
+  loadedAt      DateTime    @default(now()) @map("loaded_at") @db.Timestamptz(6)
+  creator       User        @relation(fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  person        Person      @relation(fields: [personId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  plan          Plan        @relation(fields: [planId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  membership    Membership?
+  payments      Payment[]
+
+  @@unique([personId, planId, procedureDate])
+  @@map("enrollments")
+}
+
+model Payment {
+  id              Int        @id @default(autoincrement())
+  enrollmentId    Int        @map("enrollment_id")
+  method          String     @default("transferencia") @db.VarChar(20)
+  amount          Decimal    @db.Decimal(10, 2)
+  paidOn          DateTime   @map("paid_on") @db.Date
+  operationNumber String     @unique @map("operation_number") @db.VarChar(30)
+  status          String     @default("pendiente") @db.VarChar(20)
+  verifiedBy      Int?       @map("verified_by")
+  enrollment      Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  verifier        User?      @relation(fields: [verifiedBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("payments")
+}
+
+model Membership {
+  id                Int                @id @default(autoincrement())
+  enrollmentId      Int                @unique @map("enrollment_id")
+  certificateNumber String             @unique @map("certificate_number") @db.VarChar(20)
+  status            String             @default("activo") @db.VarChar(20)
+  validFrom         DateTime           @map("valid_from") @db.Date
+  validTo           DateTime           @map("valid_to") @db.Date
+  enrollment        Enrollment         @relation(fields: [enrollmentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  members           MembershipMember[]
+
+  @@map("memberships")
+}
+
+model MembershipMember {
+  membershipId Int        @map("membership_id")
+  personId     Int        @map("person_id")
+  membership   Membership @relation(fields: [membershipId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  person       Person     @relation(fields: [personId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  carnet       Carnet?
+
+  @@id([membershipId, personId])
+  @@map("membership_members")
+}
+
+model Carnet {
+  id               Int              @id @default(autoincrement())
+  membershipId     Int              @map("membership_id")
+  personId         Int              @map("person_id")
+  number           String           @unique @db.VarChar(20)
+  status           String           @default("vigente") @db.VarChar(20)
+  membershipMember MembershipMember @relation(fields: [membershipId, personId], references: [membershipId, personId], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([membershipId, personId])
+  @@map("carnets")
+}
+
+model MedicalCertificate {
+  id         Int      @id @default(autoincrement())
+  personId   Int      @map("person_id")
+  recordedBy Int      @map("recorded_by")
+  issuedOn   DateTime @map("issued_on") @db.Date
+  validUntil DateTime @map("valid_until") @db.Date
+  person     Person   @relation(fields: [personId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  recorder   User     @relation(fields: [recordedBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("medical_certificates")
+}
+
+model Consent {
+  id       Int      @id @default(autoincrement())
+  personId Int      @map("person_id")
+  givenOn  DateTime @map("given_on") @db.Date
+  scope    String   @db.VarChar(120)
+  person   Person   @relation(fields: [personId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("consents")
+}
+
+model Court {
+  id          String    @id @db.VarChar(30)
+  activity    String    @db.VarChar(20)
+  name        String    @unique @db.VarChar(60)
+  detail      String    @db.VarChar(120)
+  units       Int       @db.SmallInt
+  memberPrice Decimal   @map("member_price") @db.Decimal(10, 2)
+  publicPrice Decimal   @map("public_price") @db.Decimal(10, 2)
+  bookings    Booking[]
+
+  @@map("courts")
+}
+
+model Booking {
+  id          Int      @id @default(autoincrement())
+  courtId     String   @map("court_id") @db.VarChar(30)
+  courtNumber Int      @default(1) @map("court_number") @db.SmallInt
+  date        DateTime @db.Date
+  hour        Int      @db.SmallInt
+  fullName    String   @map("full_name") @db.VarChar(120)
+  dni         String   @db.VarChar(8)
+  phone       String   @db.VarChar(30)
+  isMember    Boolean  @default(false) @map("is_member")
+  price       Decimal  @db.Decimal(10, 2)
+  court       Court    @relation(fields: [courtId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([courtId, courtNumber, date, hour])
+  @@map("bookings")
+}
