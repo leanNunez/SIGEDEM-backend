@@ -1,7 +1,10 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module.js';
-import { BookingModule } from '../booking/booking.module.js';
-import { EnrollmentModule } from '../enrollment/enrollment.module.js';
+import { BookingsModule } from '../bookings/bookings.module.js';
+import { CourtsModule } from '../courts/courts.module.js';
+import { EnrollmentsModule } from '../enrollments/enrollments.module.js';
+import { PaymentsModule } from '../payments/payments.module.js';
+import { PersonsModule } from '../persons/persons.module.js';
 import { PlansModule } from '../plans/plans.module.js';
 import { UsersModule } from '../users/users.module.js';
 import { AppController } from './app.controller.js';
@@ -17,9 +20,12 @@ import { AppService } from './app.service.js';
   imports: [
     AuthModule,
     UsersModule,
+    PersonsModule,
     PlansModule,
-    EnrollmentModule,
-    BookingModule,
+    EnrollmentsModule,
+    PaymentsModule,
+    CourtsModule,
+    BookingsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
