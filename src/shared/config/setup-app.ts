@@ -18,6 +18,6 @@ export function setupApp(app: INestApplication): void {
   // whitelist + forbidNonWhitelisted: si llega un campo que el DTO no declara,
   // responde 400. Así nadie puede mandar, por ejemplo, un id o un hash a mano.
   app.useGlobalPipes(
-    new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }),
+    new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })
   );
 }
