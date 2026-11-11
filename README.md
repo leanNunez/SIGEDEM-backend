@@ -82,16 +82,28 @@ Una migración ya aplicada **no se edita**: si cambia una tabla, se crea otra. P
 
 ### Si ya tenías una base creada con SQL
 
-Prisma guarda en la tabla `_prisma_migrations` qué migraciones aplicó. Una base creada a mano (con el viejo `schema.sql`) no tiene esa tabla, así que `migrate dev` no la reconoce.
+Prisma guarda en la tabla `_prisma_migrations` qué migraciones aplicó. Una base creada a mano con el viejo `schema.sql` no tiene esa tabla y, además, tiene la tabla `bookings` vieja (con `full_name` y `phone`, sin `renters`). **Esa base hay que recrearla**: borrar todas sus tablas y crearlas de nuevo con la migración.
 
-- **Base local:** lo más simple es borrarla y crearla de nuevo (`npx prisma migrate reset --force` y `npx prisma db seed`). Además, las bases creadas antes de este cambio tienen la tabla `bookings` vieja (sin `renters`), así que hay que recrearlas igual.
-- **Base que ya tiene exactamente esta estructura** (por ejemplo, la de producción cargada a mano y que no se puede borrar): se la marca como migrada, sin tocar sus tablas:
+- **Base local:**
 
   ```bash
-  npx prisma migrate resolve --applied 20261111194707_init
+  npx prisma migrate reset --force   # borra todas las tablas y aplica las migraciones
+  npx prisma db seed
   ```
 
-  Desde ahí, los cambios nuevos se aplican con `npx prisma migrate deploy`.
+- **Base de producción (Neon):**
+  1. En la consola de Neon, en el **SQL Editor** de la base, borrá todas las tablas:
+
+     ```sql
+     DROP SCHEMA public CASCADE;
+     CREATE SCHEMA public;
+     ```
+
+  2. Con la URL de Neon en tu `.env` (en `DATABASE_URL`, nunca en el repo), corré `npx prisma migrate deploy` y `npx prisma db seed`, y después volvé a poner la URL local. Si te salteás este paso, el próximo deploy de Render crea las tablas solo (su `buildCommand` corre `migrate deploy`), pero quedan vacías.
+
+  Hacelo **antes de mergear a `main`**: si Render corre `migrate deploy` sobre la base vieja, el deploy falla (`P3005`, la base no está vacía) y sigue andando la versión anterior.
+
+> `npx prisma migrate resolve --applied 20261111194707_init` **no sirve para una base vieja**: solo anota la migración como aplicada, sin crear nada. Se usa únicamente en una base que ya tiene exactamente la estructura de `init` (con `renters`). En una base vieja dejaría la tabla `bookings` vieja y la API fallaría.
 
 Tablas, agrupadas por tema:
 

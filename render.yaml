@@ -14,9 +14,12 @@ services:
     # base están cerca, cada consulta tarda menos. No se puede cambiar después.
     region: ohio
     branch: main
-    # npm ci instala lo de package-lock.json y, al terminar, el postinstall
-    # corre "prisma generate". Después se compila con Nest.
-    buildCommand: npm ci && npm run build
+    # npm ci instala lo de package-lock.json (también las devDependencies, como
+    # el CLI de prisma y el de Nest) y, al terminar, el postinstall corre
+    # "prisma generate". migrate deploy aplica en Neon las migraciones que
+    # falten (si no falta ninguna, no hace nada). Después se compila con Nest.
+    # Si una migración falla, el deploy se corta y sigue la versión anterior.
+    buildCommand: npm ci && npx prisma migrate deploy && npm run build
     startCommand: npm run start:prod
     # Render llama a esta ruta para saber si la API arrancó bien.
     healthCheckPath: /api
