@@ -154,7 +154,7 @@ Métodos de cada recurso CRUD: `GET` lista · `GET /:id` · `POST` · `PATCH /:i
 
 - Las fechas se mandan como `AAAA-MM-DD` (`"2026-11-05"`) y vuelven en formato ISO (`"2026-11-05T00:00:00.000Z"`).
 - Los montos (`amount`, `price`, `memberPrice`, `publicPrice`) se mandan como número y vuelven como texto (`"18000"`), porque en la base son `NUMERIC`.
-- `bookings` recibe `fullName`, `dni` y `phone` en el body, como antes. La API busca el DNI en `renters`: si ya alquiló, reusa su fila (y actualiza nombre y teléfono); si no, la crea. Las respuestas traen el renter adentro (`"renter": { "id", "dni", "fullName", "phone" }`). Para cambiar el DNI de una reserva hay que mandar también `fullName` y `phone`.
+- `bookings` recibe `fullName`, `dni` y `phone` en el body, como antes. La API busca el DNI en `renters`: si ya alquiló, reusa su fila tal como está (no cambia su nombre ni su teléfono, porque cambiarían en todas sus reservas); si no, la crea. Las respuestas traen el renter adentro (`"renter": { "id", "dni", "fullName", "phone" }`). Al editar una reserva, cambiar el DNI la pasa a otra persona (hay que mandar también `fullName` y `phone`); mandar otro nombre o teléfono con el mismo DNI responde `400`. Editar los datos de un renter queda para más adelante.
 
 ## TP 10: validaciones con DTOs
 

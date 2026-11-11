@@ -88,7 +88,7 @@ describe('BookingsService', () => {
     expect(prisma.renter.upsert).toHaveBeenCalledWith({
       where: { dni: '30111222' },
       create: { dni: '30111222', fullName: 'Ana Gómez', phone: '381 555-0101' },
-      update: { fullName: 'Ana Gómez', phone: '381 555-0101' },
+      update: {},
     });
     expect(prisma.booking.create).toHaveBeenCalledWith({
       data: {
@@ -102,14 +102,82 @@ describe('BookingsService', () => {
     });
   });
 
+  it('create no cambia los datos de un renter que ya existe', async () => {
+    // El DNI ya está en renters como 'Ana Gómez': la base devuelve esa fila.
+    prisma.renter.upsert.mockResolvedValue(RENTER);
+    prisma.booking.create.mockResolvedValue(BOOKING);
+    await service.create({
+      courtId: 'futbol-5',
+      date: '2026-11-05',
+      hour: 20,
+      fullName: 'Ana María Gómez',
+      dni: '30111222',
+      phone: '381 555-9999',
+      price: 15000,
+    });
+    // update vacío: el nombre y el teléfono nuevos no pisan los guardados.
+    expect(prisma.renter.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { dni: '30111222' }, update: {} })
+    );
+    expect(prisma.booking.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ renterId: RENTER.id }),
+      })
+    );
+  });
+
   it('update deja a quien alquila como estaba si no vienen sus datos', async () => {
     prisma.booking.findUnique.mockResolvedValue(BOOKING);
     prisma.renter.upsert.mockResolvedValue(RENTER);
     prisma.booking.update.mockResolvedValue(BOOKING);
     await service.update(1, { hour: 21 });
     expect(prisma.renter.upsert).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { dni: '30111222' } })
+      expect.objectContaining({ where: { dni: '30111222' }, update: {} })
     );
+  });
+
+  it('update pasa la reserva a otro DNI sin cambiar los datos guardados', async () => {
+    const otherRenter: Renter = {
+      id: 2,
+      dni: '29123456',
+      fullName: 'Pedro Ledesma',
+      phone: '381 555-0201',
+    };
+    prisma.booking.findUnique.mockResolvedValue(BOOKING);
+    prisma.renter.upsert.mockResolvedValue(otherRenter);
+    prisma.booking.update.mockResolvedValue({
+      ...BOOKING,
+      renterId: 2,
+      renter: otherRenter,
+    });
+    await service.update(1, {
+      dni: '29123456',
+      fullName: 'Pedro Ledesma',
+      phone: '381 555-0201',
+    });
+    expect(prisma.renter.upsert).toHaveBeenCalledWith({
+      where: { dni: '29123456' },
+      create: {
+        dni: '29123456',
+        fullName: 'Pedro Ledesma',
+        phone: '381 555-0201',
+      },
+      update: {},
+    });
+    expect(prisma.booking.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ renterId: 2 }),
+      })
+    );
+  });
+
+  it('update responde 400 si cambia el nombre sin cambiar el DNI', async () => {
+    prisma.booking.findUnique.mockResolvedValue(BOOKING);
+    await expect(
+      service.update(1, { fullName: 'Ana María Gómez' })
+    ).rejects.toThrow(BadRequestException);
+    expect(prisma.renter.upsert).not.toHaveBeenCalled();
+    expect(prisma.booking.update).not.toHaveBeenCalled();
   });
 
   it('update responde 400 si cambia el DNI sin nombre ni teléfono', async () => {
