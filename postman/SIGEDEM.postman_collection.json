@@ -2058,6 +2058,98 @@
                 }
               },
               "response": []
+            },
+            {
+              "name": "Fecha que no existe (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Responde 400', () => pm.response.to.have.status(400));",
+                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                      "const messages = [].concat(pm.response.json().message).join(' | ');",
+                      "pm.test('Explica qué falló', () => pm.expect(messages).to.include(\"La fecha tiene que ser AAAA-MM-DD\"));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/bookings",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "bookings"
+                  ]
+                },
+                "description": "Pide el 30 de febrero: @IsDateString con strict: true lo rechaza (sin strict se guardaba como 2 de marzo).",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"courtId\": \"futbol-7\",\n  \"courtNumber\": 1,\n  \"date\": \"2026-02-30\",\n  \"hour\": 19,\n  \"fullName\": \"Pedro Ledesma\",\n  \"dni\": \"29123456\",\n  \"phone\": \"381 555-0201\",\n  \"isMember\": false,\n  \"price\": 36000\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Fecha con hora y zona horaria (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Responde 400', () => pm.response.to.have.status(400));",
+                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                      "const messages = [].concat(pm.response.json().message).join(' | ');",
+                      "pm.test('Explica qué falló', () => pm.expect(messages).to.include(\"La fecha tiene que ser AAAA-MM-DD\"));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/bookings",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "bookings"
+                  ]
+                },
+                "description": "Manda fecha con hora y zona horaria: @Matches exige AAAA-MM-DD, porque al guardarla como DATE podía cambiar de día.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"courtId\": \"futbol-7\",\n  \"courtNumber\": 1,\n  \"date\": \"2026-12-01T23:00:00-03:00\",\n  \"hour\": 19,\n  \"fullName\": \"Pedro Ledesma\",\n  \"dni\": \"29123456\",\n  \"phone\": \"381 555-0201\",\n  \"isMember\": false,\n  \"price\": 36000\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
             }
           ]
         }

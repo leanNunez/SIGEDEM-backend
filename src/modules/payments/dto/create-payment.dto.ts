@@ -7,9 +7,11 @@ import {
   IsOptional,
   IsPositive,
   IsString,
+  Matches,
   Max,
   MaxLength,
 } from 'class-validator';
+import { DATE_ONLY_PATTERN } from '../../../shared/validation/date-pattern.js';
 
 // QUÉ ES: los datos que hay que mandar en el body para registrar un pago.
 // NIVEL: dto — describe lo que entra a la API y valida cada campo.
@@ -54,9 +56,17 @@ export class CreatePaymentDto {
   @Max(MAX_AMOUNT)
   amount: number;
 
-  // @IsDateString acepta una fecha en texto, por ejemplo '2026-10-01'.
+  // La fecha llega en texto, por ejemplo '2026-10-01'.
+  // @IsDateString con strict: true rechaza días que no existen ('2026-02-30').
+  // @Matches exige AAAA-MM-DD, sin hora ni zona horaria (ver date-pattern.ts).
   // En el TP 11, PaymentsService la va a convertir en Date antes de guardarla.
-  @IsDateString({}, { message: 'La fecha del pago tiene que ser AAAA-MM-DD' })
+  @IsDateString(
+    { strict: true },
+    { message: 'La fecha del pago tiene que ser AAAA-MM-DD' }
+  )
+  @Matches(DATE_ONLY_PATTERN, {
+    message: 'La fecha del pago tiene que ser AAAA-MM-DD',
+  })
   paidOn: string;
 
   // La columna es UNIQUE: un comprobante repetido responde 409.

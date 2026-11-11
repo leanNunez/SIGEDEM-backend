@@ -18,6 +18,17 @@ const NEW_PLAN = {
   description: 'Plan de prueba para la temporada de verano.',
 };
 
+// Un body válido para POST /api/bookings.
+const NEW_BOOKING = {
+  courtId: 'futbol-7',
+  date: '2026-11-20',
+  hour: 19,
+  fullName: 'Pedro Ledesma',
+  dni: '29123456',
+  phone: '381 555-0201',
+  price: 36000,
+};
+
 describe('App (e2e)', () => {
   let app: INestApplication<App>;
 
@@ -73,19 +84,24 @@ describe('App (e2e)', () => {
       .expect(400);
   });
 
+  it('POST /api/bookings responde 400 si la fecha no existe', () => {
+    return request(app.getHttpServer())
+      .post('/api/bookings')
+      .send({ ...NEW_BOOKING, date: '2026-02-30' })
+      .expect(400);
+  });
+
+  it('POST /api/bookings responde 400 si la fecha trae hora y zona horaria', () => {
+    return request(app.getHttpServer())
+      .post('/api/bookings')
+      .send({ ...NEW_BOOKING, date: '2026-12-01T23:00:00-03:00' })
+      .expect(400);
+  });
+
   it('POST /api/bookings responde 400 si isMember no es booleano', () => {
     return request(app.getHttpServer())
       .post('/api/bookings')
-      .send({
-        courtId: 'futbol-7',
-        date: '2026-11-20',
-        hour: 19,
-        fullName: 'Pedro Ledesma',
-        dni: '29123456',
-        phone: '381 555-0201',
-        isMember: 'si',
-        price: 36000,
-      })
+      .send({ ...NEW_BOOKING, isMember: 'si' })
       .expect(400);
   });
 

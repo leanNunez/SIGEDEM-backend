@@ -12,6 +12,7 @@ import {
   MaxLength,
   Min,
 } from 'class-validator';
+import { DATE_ONLY_PATTERN } from '../../../shared/validation/date-pattern.js';
 
 // QUÉ ES: los datos que hay que mandar en el body para reservar una cancha.
 // NIVEL: dto — describe lo que entra a la API y valida cada campo.
@@ -55,9 +56,15 @@ export class CreateBookingDto {
   @Max(SMALLINT_MAX)
   courtNumber?: number;
 
-  // @IsDateString acepta una fecha en texto, por ejemplo '2026-11-05'.
+  // La fecha llega en texto, por ejemplo '2026-11-05'.
+  // @IsDateString con strict: true rechaza días que no existen ('2026-02-30').
+  // @Matches exige AAAA-MM-DD, sin hora ni zona horaria (ver date-pattern.ts).
   // En el TP 11, BookingsService la va a convertir en Date antes de guardarla.
-  @IsDateString({}, { message: 'La fecha tiene que ser AAAA-MM-DD' })
+  @IsDateString(
+    { strict: true },
+    { message: 'La fecha tiene que ser AAAA-MM-DD' }
+  )
+  @Matches(DATE_ONLY_PATTERN, { message: 'La fecha tiene que ser AAAA-MM-DD' })
   date: string;
 
   @IsInt()

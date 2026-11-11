@@ -104,14 +104,15 @@ Cada módulo tiene un `CreateXDto` y un `UpdateXDto` en su carpeta `dto/`. Los c
 
 El `ValidationPipe` global (en `src/shared/config/setup-app.ts`) revisa cada body antes de que llegue al controller:
 
-| Caso                                               | Respuesta                                  |
-| -------------------------------------------------- | ------------------------------------------ |
-| El body cumple todas las reglas                    | `201` con `{ message, data }`              |
-| Falta un campo obligatorio                         | `400` con la lista de errores en `message` |
-| Llega texto donde va un número (`"hour": "diez"`)  | `400` (`hour must be an integer number`)   |
-| Llega algo que no es booleano (`"isMember": "si"`) | `400` (`isMember must be a boolean value`) |
-| Llega un campo que el DTO no declara               | `400` (`property price should not exist`)  |
-| El id numérico de la URL no es un número           | `400` (lo controla `ParseIntPipe`)         |
+| Caso                                               | Respuesta                                   |
+| -------------------------------------------------- | ------------------------------------------- |
+| El body cumple todas las reglas                    | `201` con `{ message, data }`               |
+| Falta un campo obligatorio                         | `400` con la lista de errores en `message`  |
+| Llega texto donde va un número (`"hour": "diez"`)  | `400` (`hour must be an integer number`)    |
+| Llega algo que no es booleano (`"isMember": "si"`) | `400` (`isMember must be a boolean value`)  |
+| Llega un campo que el DTO no declara               | `400` (`property price should not exist`)   |
+| La fecha no existe o trae hora (`"2026-02-30"`)    | `400` (`La fecha tiene que ser AAAA-MM-DD`) |
+| El id numérico de la URL no es un número           | `400` (lo controla `ParseIntPipe`)          |
 
 Algunos mensajes están en español porque el decorador tiene uno propio (por ejemplo, `La fecha tiene que ser AAAA-MM-DD`); los demás son los que trae class-validator, en inglés.
 
