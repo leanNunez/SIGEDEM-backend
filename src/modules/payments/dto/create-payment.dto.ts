@@ -16,7 +16,7 @@ import { DATE_ONLY_PATTERN } from '../../../shared/validation/date-pattern.js';
 // QUÉ ES: los datos que hay que mandar en el body para registrar un pago.
 // NIVEL: dto — describe lo que entra a la API y valida cada campo.
 // DÓNDE SE USA: PaymentsController lo recibe en POST /api/payments.
-// A FUTURO: en el TP 11 los datos se guardan en la tabla payments (ver PaymentsService).
+// Los datos se guardan en la tabla payments (ver PaymentsService).
 
 // Cada decorador repite una regla de la tabla payments (database/schema.sql).
 // Así el error se detecta acá y la API responde 400 con un mensaje claro,
@@ -59,7 +59,7 @@ export class CreatePaymentDto {
   // La fecha llega en texto, por ejemplo '2026-10-01'.
   // @IsDateString con strict: true rechaza días que no existen ('2026-02-30').
   // @Matches exige AAAA-MM-DD, sin hora ni zona horaria (ver date-pattern.ts).
-  // En el TP 11, PaymentsService la va a convertir en Date antes de guardarla.
+  // PaymentsService la convierte en Date antes de guardarla.
   @IsDateString(
     { strict: true },
     { message: 'La fecha del pago tiene que ser AAAA-MM-DD' }

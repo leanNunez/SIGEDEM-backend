@@ -1,18 +1,9 @@
 // QUÉ ES: cómo es un plan del abono.
 // NIVEL: entity — refleja la tabla plans de database/schema.sql.
-// DÓNDE SE USA: todavía en ningún lado, porque en el TP 10 la API no lee la base.
-// A FUTURO: en el TP 11 PlansService devuelve objetos con esta forma, y el tipo
-// lo genera Prisma a partir de prisma/schema.prisma.
+// DÓNDE SE USA: PlansService y PlansController devuelven objetos con esta forma.
 
-export class Plan {
-  // Identificador fijo y legible ('individual', 'familiar'), el mismo del front.
-  id: string;
-  name: string;
-  // Solo puede ser uno de estos dos valores (igual que el CHECK de la tabla).
-  type: 'individual' | 'familiar';
-  people: string;
-  description: string;
-  // null = la columna está vacía (en la tabla puede ser NULL).
-  discountNote: string | null;
-  badge: string | null;
-}
+// El tipo lo genera Prisma a partir del model Plan de prisma/schema.prisma,
+// así siempre coincide con la tabla y no hay que escribirlo dos veces.
+// Campos: id, name, type, people, description, discountNote y badge
+// (discountNote y badge pueden ser null).
+export type { Plan } from '../../../generated/prisma/client.js';

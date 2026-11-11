@@ -1,45 +1,104 @@
+import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { CreateBookingDto } from './dto/create-booking.dto.js';
+import { Prisma } from '../../generated/prisma/client.js';
+import { PrismaService } from '../../shared/database/prisma.service.js';
 import { BookingsService } from './bookings.service.js';
+import { Booking } from './entities/booking.entity.js';
 
 // QUÉ ES: los tests unitarios de BookingsService.
-// NIVEL: test — prueba las respuestas provisorias del service (todavía sin base).
+// NIVEL: test — prueba la lógica del service sin tocar la base.
 // DÓNDE SE USA: los corre npm test.
 
-// Un body válido, como el que llega después de pasar por ValidationPipe.
-const NEW_BOOKING: CreateBookingDto = {
-  courtId: 'futbol-7',
-  date: '2026-11-20',
-  hour: 19,
-  fullName: 'Pedro Ledesma',
-  dni: '29123456',
-  phone: '381 555-0201',
-  price: 36000,
+const BOOKING: Booking = {
+  id: 1,
+  courtId: 'futbol-5',
+  courtNumber: 1,
+  date: new Date('2026-11-05'),
+  hour: 20,
+  fullName: 'Ana Gómez',
+  dni: '30111222',
+  phone: '381 555-0101',
+  isMember: true,
+  price: new Prisma.Decimal(15000),
 };
 
 describe('BookingsService', () => {
   let service: BookingsService;
+  // Un PrismaService falso: cada función es un vi.fn() que el test controla.
+  const prisma = {
+    booking: {
+      findMany: vi.fn(),
+      findUnique: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+    },
+  };
 
   beforeEach(async () => {
+    vi.clearAllMocks();
+    // useValue reemplaza el PrismaService real por el falso.
     const module: TestingModule = await Test.createTestingModule({
-      providers: [BookingsService],
+      providers: [
+        BookingsService,
+        { provide: PrismaService, useValue: prisma },
+      ],
     }).compile();
 
     service = module.get<BookingsService>(BookingsService);
   });
 
-  it('create devuelve los datos que llegaron en el body', () => {
-    expect(service.create(NEW_BOOKING).data).toEqual(NEW_BOOKING);
+  it('findAll devuelve las reservas de la base', async () => {
+    prisma.booking.findMany.mockResolvedValue([BOOKING]);
+    await expect(service.findAll()).resolves.toEqual([BOOKING]);
   });
 
-  it('findOne devuelve el id pedido', () => {
-    expect(service.findOne(1).id).toBe(1);
+  it('findOne devuelve la reserva si existe', async () => {
+    prisma.booking.findUnique.mockResolvedValue(BOOKING);
+    await expect(service.findOne(1)).resolves.toEqual(BOOKING);
   });
 
-  it('update devuelve el id y los cambios', () => {
-    expect(service.update(1, { hour: 20 })).toMatchObject({
-      id: 1,
-      data: { hour: 20 },
+  it('findOne responde 404 si la reserva no existe', async () => {
+    prisma.booking.findUnique.mockResolvedValue(null);
+    await expect(service.findOne(99)).rejects.toThrow(NotFoundException);
+  });
+
+  it('create convierte la fecha de la reserva en Date', async () => {
+    prisma.booking.create.mockResolvedValue(BOOKING);
+    await service.create({
+      courtId: 'futbol-5',
+      date: '2026-11-05',
+      hour: 20,
+      fullName: 'Ana Gómez',
+      dni: '30111222',
+      phone: '381 555-0101',
+      price: 15000,
     });
+    expect(prisma.booking.create).toHaveBeenCalledWith({
+      data: {
+        courtId: 'futbol-5',
+        date: new Date('2026-11-05'),
+        hour: 20,
+        fullName: 'Ana Gómez',
+        dni: '30111222',
+        phone: '381 555-0101',
+        price: 15000,
+      },
+    });
+  });
+
+  it('update no toca la base si la reserva no existe', async () => {
+    prisma.booking.findUnique.mockResolvedValue(null);
+    await expect(service.update(99, { hour: 21 })).rejects.toThrow(
+      NotFoundException
+    );
+    expect(prisma.booking.update).not.toHaveBeenCalled();
+  });
+
+  it('remove borra la reserva si existe', async () => {
+    prisma.booking.findUnique.mockResolvedValue(BOOKING);
+    prisma.booking.delete.mockResolvedValue(BOOKING);
+    await expect(service.remove(1)).resolves.toEqual(BOOKING);
+    expect(prisma.booking.delete).toHaveBeenCalledWith({ where: { id: 1 } });
   });
 });

@@ -7,9 +7,9 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import type { PlaceholderResponse } from '../../shared/types/placeholder-response.js';
 import { CreatePlanDto } from './dto/create-plan.dto.js';
 import { UpdatePlanDto } from './dto/update-plan.dto.js';
+import { Plan } from './entities/plan.entity.js';
 import { PlansService } from './plans.service.js';
 
 // QUÉ ES: las rutas de planes (/api/plans).
@@ -25,32 +25,30 @@ export class PlansController {
 
   /**
    * GET /api/plans — lista todos los planes.
-   * @returns Un mensaje provisorio (en el TP 11, la lista de los planes).
+   * @returns Los planes.
    */
   @Get()
-  findAll(): PlaceholderResponse {
+  findAll(): Promise<Plan[]> {
     return this.plansService.findAll();
   }
 
   /**
    * GET /api/plans/:id — devuelve un plan.
    * @param id - El id que viene en la URL (/api/plans/familiar → 'familiar').
-   * @returns Un mensaje con el id pedido.
+   * @returns El plan encontrado.
    */
   @Get(':id')
-  findOne(@Param('id') id: string): PlaceholderResponse {
+  findOne(@Param('id') id: string): Promise<Plan> {
     return this.plansService.findOne(id);
   }
 
   /**
    * POST /api/plans — crea un plan.
    * @param createPlanDto - El body del pedido, ya validado por ValidationPipe.
-   * @returns Un mensaje con los datos recibidos (responde 201).
+   * @returns El plan creado (responde 201).
    */
   @Post()
-  create(
-    @Body() createPlanDto: CreatePlanDto
-  ): PlaceholderResponse<CreatePlanDto> {
+  create(@Body() createPlanDto: CreatePlanDto): Promise<Plan> {
     return this.plansService.create(createPlanDto);
   }
 
@@ -58,23 +56,24 @@ export class PlansController {
    * PATCH /api/plans/:id — edita un plan.
    * @param id - El id que viene en la URL.
    * @param updatePlanDto - Solo los campos que cambian.
-   * @returns Un mensaje con el id y los cambios recibidos.
+   * @returns El plan editado.
    */
   @Patch(':id')
   update(
     @Param('id') id: string,
     @Body() updatePlanDto: UpdatePlanDto
-  ): PlaceholderResponse<UpdatePlanDto> {
+  ): Promise<Plan> {
     return this.plansService.update(id, updatePlanDto);
   }
 
   /**
    * DELETE /api/plans/:id — borra un plan.
+   * Si el plan tiene inscripciones o precios, la base no deja borrarlo (409).
    * @param id - El id que viene en la URL.
-   * @returns Un mensaje con el id pedido.
+   * @returns El plan borrado.
    */
   @Delete(':id')
-  remove(@Param('id') id: string): PlaceholderResponse {
+  remove(@Param('id') id: string): Promise<Plan> {
     return this.plansService.remove(id);
   }
 }

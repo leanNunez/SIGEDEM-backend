@@ -1,42 +1,96 @@
+import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { CreateEnrollmentDto } from './dto/create-enrollment.dto.js';
+import { PrismaService } from '../../shared/database/prisma.service.js';
 import { EnrollmentsService } from './enrollments.service.js';
+import { Enrollment } from './entities/enrollment.entity.js';
 
 // QUÉ ES: los tests unitarios de EnrollmentsService.
-// NIVEL: test — prueba las respuestas provisorias del service (todavía sin base).
+// NIVEL: test — prueba la lógica del service sin tocar la base.
 // DÓNDE SE USA: los corre npm test.
 
-// Un body válido, como el que llega después de pasar por ValidationPipe.
-const NEW_ENROLLMENT: CreateEnrollmentDto = {
-  personId: 3,
-  planId: 'familiar',
+const ENROLLMENT: Enrollment = {
+  id: 1,
+  personId: 1,
+  planId: 'individual',
   createdBy: 1,
-  procedureDate: '2026-11-07',
+  status: 'acreditada',
+  procedureDate: new Date('2026-10-01'),
+  loadedAt: new Date('2026-10-01T12:30:00Z'),
 };
 
 describe('EnrollmentsService', () => {
   let service: EnrollmentsService;
+  // Un PrismaService falso: cada función es un vi.fn() que el test controla.
+  const prisma = {
+    enrollment: {
+      findMany: vi.fn(),
+      findUnique: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+    },
+  };
 
   beforeEach(async () => {
+    vi.clearAllMocks();
+    // useValue reemplaza el PrismaService real por el falso.
     const module: TestingModule = await Test.createTestingModule({
-      providers: [EnrollmentsService],
+      providers: [
+        EnrollmentsService,
+        { provide: PrismaService, useValue: prisma },
+      ],
     }).compile();
 
     service = module.get<EnrollmentsService>(EnrollmentsService);
   });
 
-  it('create devuelve los datos que llegaron en el body', () => {
-    expect(service.create(NEW_ENROLLMENT).data).toEqual(NEW_ENROLLMENT);
+  it('findAll devuelve las inscripciones de la base', async () => {
+    prisma.enrollment.findMany.mockResolvedValue([ENROLLMENT]);
+    await expect(service.findAll()).resolves.toEqual([ENROLLMENT]);
   });
 
-  it('findOne devuelve el id pedido', () => {
-    expect(service.findOne(1).id).toBe(1);
+  it('findOne devuelve la inscripción si existe', async () => {
+    prisma.enrollment.findUnique.mockResolvedValue(ENROLLMENT);
+    await expect(service.findOne(1)).resolves.toEqual(ENROLLMENT);
   });
 
-  it('update devuelve el id y los cambios', () => {
-    expect(service.update(1, { status: 'anulada' })).toMatchObject({
-      id: 1,
-      data: { status: 'anulada' },
+  it('findOne responde 404 si la inscripción no existe', async () => {
+    prisma.enrollment.findUnique.mockResolvedValue(null);
+    await expect(service.findOne(99)).rejects.toThrow(NotFoundException);
+  });
+
+  it('create convierte la fecha del trámite en Date', async () => {
+    prisma.enrollment.create.mockResolvedValue(ENROLLMENT);
+    await service.create({
+      personId: 1,
+      planId: 'individual',
+      createdBy: 1,
+      procedureDate: '2026-10-01',
+    });
+    expect(prisma.enrollment.create).toHaveBeenCalledWith({
+      data: {
+        personId: 1,
+        planId: 'individual',
+        createdBy: 1,
+        procedureDate: new Date('2026-10-01'),
+      },
+    });
+  });
+
+  it('update no toca la base si la inscripción no existe', async () => {
+    prisma.enrollment.findUnique.mockResolvedValue(null);
+    await expect(service.update(99, { status: 'anulada' })).rejects.toThrow(
+      NotFoundException
+    );
+    expect(prisma.enrollment.update).not.toHaveBeenCalled();
+  });
+
+  it('remove borra la inscripción si existe', async () => {
+    prisma.enrollment.findUnique.mockResolvedValue(ENROLLMENT);
+    prisma.enrollment.delete.mockResolvedValue(ENROLLMENT);
+    await expect(service.remove(1)).resolves.toEqual(ENROLLMENT);
+    expect(prisma.enrollment.delete).toHaveBeenCalledWith({
+      where: { id: 1 },
     });
   });
 });

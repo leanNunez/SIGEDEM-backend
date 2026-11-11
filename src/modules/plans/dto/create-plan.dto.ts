@@ -10,7 +10,7 @@ import {
 // QUÉ ES: los datos que hay que mandar en el body para crear un plan.
 // NIVEL: dto — describe lo que entra a la API y valida cada campo.
 // DÓNDE SE USA: PlansController lo recibe en POST /api/plans.
-// A FUTURO: en el TP 11 los datos se guardan en la tabla plans (ver PlansService).
+// Los datos se guardan en la tabla plans (ver PlansService).
 
 // Cada decorador repite una regla de la tabla plans (database/schema.sql).
 // Así el error se detecta acá y la API responde 400 con un mensaje claro,

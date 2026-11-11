@@ -1,77 +1,93 @@
-import { Injectable } from '@nestjs/common';
-import type { PlaceholderResponse } from '../../shared/types/placeholder-response.js';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../../shared/database/prisma.service.js';
 import { CreateBookingDto } from './dto/create-booking.dto.js';
 import { UpdateBookingDto } from './dto/update-booking.dto.js';
+import { Booking } from './entities/booking.entity.js';
 
-// QUÉ ES: el servicio de las reservas: listar, buscar, crear, editar y borrar.
+// QUÉ ES: el servicio de reservas: listar, buscar, reservar, editar y borrar.
 // NIVEL: service — acá va la lógica; el controller solo recibe y responde.
 // DÓNDE SE USA: BookingsController lo recibe por inyección de dependencias.
-// A FUTURO: en el TP 11 se conecta a la tabla bookings con Prisma. Por ahora
-// no guarda nada: responde un mensaje y los datos que llegaron, ya validados.
+// A FUTURO: calcular el precio según la cancha y si es socio, y no dejar
+// reservar turnos que ya pasaron.
+
+// Los errores de la base (turno ya reservado, cancha inexistente) no se manejan
+// acá: los traduce PrismaExceptionFilter a 409 o 404 para todos los módulos.
+
+// Las fechas llegan en el body como texto ('2026-11-05'), pero Prisma necesita
+// un Date para una columna DATE: por eso se convierten con new Date(...).
 
 // @Injectable() le avisa a Nest que puede crear esta clase y pasarla a
 // quien la pida en su constructor.
 @Injectable()
 export class BookingsService {
+  // Nest crea PrismaService y lo pasa acá solo (inyección de dependencias).
+  constructor(private readonly prisma: PrismaService) {}
+
   /**
-   * Lista las reservas. Por ahora solo responde un mensaje, porque no hay base.
-   * @returns Un mensaje que explica qué va a devolver esta ruta.
+   * Devuelve todas las reservas, ordenadas por fecha y hora.
+   * @returns La lista de reservas (vacía si no hay ninguna).
    */
-  findAll(): PlaceholderResponse {
-    return {
-      message: 'Acá se van a listar las reservas (todavía no hay base)',
-    };
+  findAll(): Promise<Booking[]> {
+    return this.prisma.booking.findMany({
+      orderBy: [{ date: 'asc' }, { hour: 'asc' }],
+    });
   }
 
   /**
-   * Busca una reserva por su id. Por ahora solo devuelve el id que llegó.
+   * Busca una reserva por su id.
    * @param id - El id de la reserva, por ejemplo 1.
-   * @returns Un mensaje con el id pedido.
+   * @returns La reserva encontrada.
+   * @throws NotFoundException si no existe una reserva con ese id.
    */
-  findOne(id: number): PlaceholderResponse {
-    return {
-      message: 'Acá se va a mostrar la reserva pedida (todavía no hay base)',
-      id,
-    };
+  async findOne(id: number): Promise<Booking> {
+    const booking = await this.prisma.booking.findUnique({ where: { id } });
+    // findUnique devuelve null si no la encuentra. NotFoundException hace que
+    // Nest responda 404 con este mensaje.
+    if (!booking)
+      throw new NotFoundException('No existe una reserva con ese id');
+    return booking;
   }
 
   /**
-   * Recibe una reserva nueva. Por ahora devuelve los datos sin guardarlos.
-   * @param createBookingDto - Los datos que llegaron en el body, ya validados.
-   * @returns Un mensaje con los datos recibidos.
+   * Crea una reserva nueva.
+   * @param createBookingDto - Los datos de la reserva que llegaron en el body.
+   * @returns La reserva creada.
    */
-  create(
-    createBookingDto: CreateBookingDto
-  ): PlaceholderResponse<CreateBookingDto> {
-    return {
-      message: 'Reserva recibida (todavía no se guarda en la base)',
-      data: createBookingDto,
-    };
+  create(createBookingDto: CreateBookingDto): Promise<Booking> {
+    const { date, ...data } = createBookingDto;
+    return this.prisma.booking.create({
+      data: { ...data, date: new Date(date) },
+    });
   }
 
   /**
-   * Recibe los cambios de una reserva. Por ahora los devuelve sin guardarlos.
+   * Edita los campos que llegaron de una reserva existente.
    * @param id - El id de la reserva a editar.
-   * @param updateBookingDto - Solo los campos que cambian, ya validados.
-   * @returns Un mensaje con el id y los cambios recibidos.
+   * @param updateBookingDto - Solo los campos que cambian.
+   * @returns La reserva ya editada.
+   * @throws NotFoundException si no existe una reserva con ese id.
    */
-  update(
+  async update(
     id: number,
     updateBookingDto: UpdateBookingDto
-  ): PlaceholderResponse<UpdateBookingDto> {
-    return {
-      message: 'Cambios recibidos (todavía no se guardan en la base)',
-      id,
-      data: updateBookingDto,
-    };
+  ): Promise<Booking> {
+    await this.findOne(id);
+    const { date, ...data } = updateBookingDto;
+    return this.prisma.booking.update({
+      where: { id },
+      // Si no vino la fecha, queda undefined y Prisma no toca la columna.
+      data: { ...data, date: date ? new Date(date) : undefined },
+    });
   }
 
   /**
-   * Recibe el pedido para borrar una reserva. Por ahora no borra nada.
+   * Borra (cancela) una reserva.
    * @param id - El id de la reserva a borrar.
-   * @returns Un mensaje con el id pedido.
+   * @returns La reserva borrada.
+   * @throws NotFoundException si no existe una reserva con ese id.
    */
-  remove(id: number): PlaceholderResponse {
-    return { message: 'Pedido de borrado recibido (todavía no hay base)', id };
+  async remove(id: number): Promise<Booking> {
+    await this.findOne(id);
+    return this.prisma.booking.delete({ where: { id } });
   }
 }

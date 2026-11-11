@@ -1,77 +1,89 @@
-import { Injectable } from '@nestjs/common';
-import type { PlaceholderResponse } from '../../shared/types/placeholder-response.js';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../../shared/database/prisma.service.js';
 import { CreatePersonDto } from './dto/create-person.dto.js';
 import { UpdatePersonDto } from './dto/update-person.dto.js';
+import { Person } from './entities/person.entity.js';
 
-// QUÉ ES: el servicio de las personas: listar, buscar, crear, editar y borrar.
+// QUÉ ES: el servicio de personas: listar, buscar, crear, editar y borrar.
 // NIVEL: service — acá va la lógica; el controller solo recibe y responde.
 // DÓNDE SE USA: PersonsController lo recibe por inyección de dependencias.
-// A FUTURO: en el TP 11 se conecta a la tabla persons con Prisma. Por ahora
-// no guarda nada: responde un mensaje y los datos que llegaron, ya validados.
+
+// Los errores de la base (DNI repetido, persona en uso) no se manejan acá:
+// los traduce PrismaExceptionFilter a 409 o 404 para todos los módulos.
+
+// Las fechas llegan en el body como texto ('1990-07-08'), pero Prisma necesita
+// un Date para una columna DATE: por eso se convierten con new Date(...).
 
 // @Injectable() le avisa a Nest que puede crear esta clase y pasarla a
 // quien la pida en su constructor.
 @Injectable()
 export class PersonsService {
+  // Nest crea PrismaService y lo pasa acá solo (inyección de dependencias).
+  constructor(private readonly prisma: PrismaService) {}
+
   /**
-   * Lista las personas. Por ahora solo responde un mensaje, porque no hay base.
-   * @returns Un mensaje que explica qué va a devolver esta ruta.
+   * Devuelve todas las personas, ordenadas por apellido y nombre.
+   * @returns La lista de personas (vacía si no hay ninguna).
    */
-  findAll(): PlaceholderResponse {
-    return {
-      message: 'Acá se van a listar las personas (todavía no hay base)',
-    };
+  findAll(): Promise<Person[]> {
+    return this.prisma.person.findMany({
+      orderBy: [{ lastName: 'asc' }, { firstName: 'asc' }],
+    });
   }
 
   /**
-   * Busca una persona por su id. Por ahora solo devuelve el id que llegó.
+   * Busca una persona por su id.
    * @param id - El id de la persona, por ejemplo 1.
-   * @returns Un mensaje con el id pedido.
+   * @returns La persona encontrada.
+   * @throws NotFoundException si no existe una persona con ese id.
    */
-  findOne(id: number): PlaceholderResponse {
-    return {
-      message: 'Acá se va a mostrar la persona pedida (todavía no hay base)',
-      id,
-    };
+  async findOne(id: number): Promise<Person> {
+    const person = await this.prisma.person.findUnique({ where: { id } });
+    // findUnique devuelve null si no la encuentra. NotFoundException hace que
+    // Nest responda 404 con este mensaje.
+    if (!person)
+      throw new NotFoundException('No existe una persona con ese id');
+    return person;
   }
 
   /**
-   * Recibe una persona nueva. Por ahora devuelve los datos sin guardarlos.
-   * @param createPersonDto - Los datos que llegaron en el body, ya validados.
-   * @returns Un mensaje con los datos recibidos.
+   * Crea una persona nueva.
+   * @param createPersonDto - Los datos de la persona que llegaron en el body.
+   * @returns La persona creada.
    */
-  create(
-    createPersonDto: CreatePersonDto
-  ): PlaceholderResponse<CreatePersonDto> {
-    return {
-      message: 'Persona recibida (todavía no se guarda en la base)',
-      data: createPersonDto,
-    };
+  create(createPersonDto: CreatePersonDto): Promise<Person> {
+    const { birthDate, ...data } = createPersonDto;
+    return this.prisma.person.create({
+      data: { ...data, birthDate: new Date(birthDate) },
+    });
   }
 
   /**
-   * Recibe los cambios de una persona. Por ahora los devuelve sin guardarlos.
+   * Edita los campos que llegaron de una persona existente.
    * @param id - El id de la persona a editar.
-   * @param updatePersonDto - Solo los campos que cambian, ya validados.
-   * @returns Un mensaje con el id y los cambios recibidos.
+   * @param updatePersonDto - Solo los campos que cambian.
+   * @returns La persona ya editada.
+   * @throws NotFoundException si no existe una persona con ese id.
    */
-  update(
-    id: number,
-    updatePersonDto: UpdatePersonDto
-  ): PlaceholderResponse<UpdatePersonDto> {
-    return {
-      message: 'Cambios recibidos (todavía no se guardan en la base)',
-      id,
-      data: updatePersonDto,
-    };
+  async update(id: number, updatePersonDto: UpdatePersonDto): Promise<Person> {
+    await this.findOne(id);
+    const { birthDate, ...data } = updatePersonDto;
+    return this.prisma.person.update({
+      where: { id },
+      // Si no vino la fecha, queda undefined y Prisma no toca la columna.
+      data: { ...data, birthDate: birthDate ? new Date(birthDate) : undefined },
+    });
   }
 
   /**
-   * Recibe el pedido para borrar una persona. Por ahora no borra nada.
+   * Borra una persona.
+   * Si la persona tiene inscripciones, aptos o abonos, la base no deja borrarla (409).
    * @param id - El id de la persona a borrar.
-   * @returns Un mensaje con el id pedido.
+   * @returns La persona borrada.
+   * @throws NotFoundException si no existe una persona con ese id.
    */
-  remove(id: number): PlaceholderResponse {
-    return { message: 'Pedido de borrado recibido (todavía no hay base)', id };
+  async remove(id: number): Promise<Person> {
+    await this.findOne(id);
+    return this.prisma.person.delete({ where: { id } });
   }
 }

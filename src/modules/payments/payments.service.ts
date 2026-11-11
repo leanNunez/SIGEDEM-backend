@@ -1,75 +1,89 @@
-import { Injectable } from '@nestjs/common';
-import type { PlaceholderResponse } from '../../shared/types/placeholder-response.js';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../../shared/database/prisma.service.js';
 import { CreatePaymentDto } from './dto/create-payment.dto.js';
 import { UpdatePaymentDto } from './dto/update-payment.dto.js';
+import { Payment } from './entities/payment.entity.js';
 
-// QUÉ ES: el servicio de los pagos: listar, buscar, crear, editar y borrar.
+// QUÉ ES: el servicio de pagos: listar, buscar, registrar, editar y borrar.
 // NIVEL: service — acá va la lógica; el controller solo recibe y responde.
 // DÓNDE SE USA: PaymentsController lo recibe por inyección de dependencias.
-// A FUTURO: en el TP 11 se conecta a la tabla payments con Prisma. Por ahora
-// no guarda nada: responde un mensaje y los datos que llegaron, ya validados.
+// A FUTURO: al acreditar un pago habría que crear el abono de la inscripción.
+
+// Los errores de la base (comprobante repetido, FK inexistente) no se manejan
+// acá: los traduce PrismaExceptionFilter a 409 o 404 para todos los módulos.
+
+// Las fechas llegan en el body como texto ('2026-10-01'), pero Prisma necesita
+// un Date para una columna DATE: por eso se convierten con new Date(...).
 
 // @Injectable() le avisa a Nest que puede crear esta clase y pasarla a
 // quien la pida en su constructor.
 @Injectable()
 export class PaymentsService {
+  // Nest crea PrismaService y lo pasa acá solo (inyección de dependencias).
+  constructor(private readonly prisma: PrismaService) {}
+
   /**
-   * Lista los pagos. Por ahora solo responde un mensaje, porque no hay base.
-   * @returns Un mensaje que explica qué va a devolver esta ruta.
+   * Devuelve todos los pagos, del más nuevo al más viejo.
+   * @returns La lista de pagos (vacía si no hay ninguno).
    */
-  findAll(): PlaceholderResponse {
-    return { message: 'Acá se van a listar los pagos (todavía no hay base)' };
+  findAll(): Promise<Payment[]> {
+    return this.prisma.payment.findMany({ orderBy: { id: 'desc' } });
   }
 
   /**
-   * Busca un pago por su id. Por ahora solo devuelve el id que llegó.
+   * Busca un pago por su id.
    * @param id - El id del pago, por ejemplo 1.
-   * @returns Un mensaje con el id pedido.
+   * @returns El pago encontrado.
+   * @throws NotFoundException si no existe un pago con ese id.
    */
-  findOne(id: number): PlaceholderResponse {
-    return {
-      message: 'Acá se va a mostrar el pago pedido (todavía no hay base)',
-      id,
-    };
+  async findOne(id: number): Promise<Payment> {
+    const payment = await this.prisma.payment.findUnique({ where: { id } });
+    // findUnique devuelve null si no lo encuentra. NotFoundException hace que
+    // Nest responda 404 con este mensaje.
+    if (!payment) throw new NotFoundException('No existe un pago con ese id');
+    return payment;
   }
 
   /**
-   * Recibe un pago nuevo. Por ahora devuelve los datos sin guardarlos.
-   * @param createPaymentDto - Los datos que llegaron en el body, ya validados.
-   * @returns Un mensaje con los datos recibidos.
+   * Registra un pago nuevo.
+   * @param createPaymentDto - Los datos del pago que llegaron en el body.
+   * @returns El pago creado.
    */
-  create(
-    createPaymentDto: CreatePaymentDto
-  ): PlaceholderResponse<CreatePaymentDto> {
-    return {
-      message: 'Pago recibido (todavía no se guarda en la base)',
-      data: createPaymentDto,
-    };
+  create(createPaymentDto: CreatePaymentDto): Promise<Payment> {
+    const { paidOn, ...data } = createPaymentDto;
+    return this.prisma.payment.create({
+      data: { ...data, paidOn: new Date(paidOn) },
+    });
   }
 
   /**
-   * Recibe los cambios de un pago. Por ahora los devuelve sin guardarlos.
+   * Edita los campos que llegaron de un pago existente.
    * @param id - El id del pago a editar.
-   * @param updatePaymentDto - Solo los campos que cambian, ya validados.
-   * @returns Un mensaje con el id y los cambios recibidos.
+   * @param updatePaymentDto - Solo los campos que cambian.
+   * @returns El pago ya editado.
+   * @throws NotFoundException si no existe un pago con ese id.
    */
-  update(
+  async update(
     id: number,
     updatePaymentDto: UpdatePaymentDto
-  ): PlaceholderResponse<UpdatePaymentDto> {
-    return {
-      message: 'Cambios recibidos (todavía no se guardan en la base)',
-      id,
-      data: updatePaymentDto,
-    };
+  ): Promise<Payment> {
+    await this.findOne(id);
+    const { paidOn, ...data } = updatePaymentDto;
+    return this.prisma.payment.update({
+      where: { id },
+      // Si no vino la fecha, queda undefined y Prisma no toca la columna.
+      data: { ...data, paidOn: paidOn ? new Date(paidOn) : undefined },
+    });
   }
 
   /**
-   * Recibe el pedido para borrar un pago. Por ahora no borra nada.
+   * Borra un pago.
    * @param id - El id del pago a borrar.
-   * @returns Un mensaje con el id pedido.
+   * @returns El pago borrado.
+   * @throws NotFoundException si no existe un pago con ese id.
    */
-  remove(id: number): PlaceholderResponse {
-    return { message: 'Pedido de borrado recibido (todavía no hay base)', id };
+  async remove(id: number): Promise<Payment> {
+    await this.findOne(id);
+    return this.prisma.payment.delete({ where: { id } });
   }
 }

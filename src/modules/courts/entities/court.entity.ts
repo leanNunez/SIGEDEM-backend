@@ -1,18 +1,10 @@
 // QUÉ ES: cómo es un tipo de cancha en alquiler.
 // NIVEL: entity — refleja la tabla courts de database/schema.sql.
-// DÓNDE SE USA: todavía en ningún lado, porque en el TP 10 la API no lee la base.
-// A FUTURO: en el TP 11 CourtsService devuelve objetos con esta forma, y el tipo
-// lo genera Prisma a partir de prisma/schema.prisma.
+// DÓNDE SE USA: CourtsService y CourtsController devuelven objetos con esta forma.
 
-export class Court {
-  // Identificador fijo y legible ('futbol-5'), el mismo del front.
-  id: string;
-  // Solo puede ser uno de estos dos valores (igual que el CHECK de la tabla).
-  activity: 'futbol' | 'voley';
-  name: string;
-  detail: string;
-  // Cuántas canchas iguales hay de este tipo.
-  units: number;
-  memberPrice: number;
-  publicPrice: number;
-}
+// El tipo lo genera Prisma a partir del model Court de prisma/schema.prisma.
+// Campos: id, activity, name, detail, units, memberPrice y publicPrice.
+// Los precios son NUMERIC(10, 2) en la tabla y Prisma los trae como Decimal
+// (un número exacto, sin errores de redondeo). En el JSON de la respuesta salen
+// como texto: "15000" en vez de 15000.
+export type { Court } from '../../../generated/prisma/client.js';

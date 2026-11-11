@@ -1,17 +1,9 @@
 // QUÉ ES: cómo es una persona del padrón de vecinos.
 // NIVEL: entity — refleja la tabla persons de database/schema.sql.
-// DÓNDE SE USA: todavía en ningún lado, porque en el TP 10 la API no lee la base.
-// A FUTURO: en el TP 11 PersonsService devuelve objetos con esta forma, y el tipo
-// lo genera Prisma a partir de prisma/schema.prisma.
+// DÓNDE SE USA: PersonsService y PersonsController devuelven objetos con esta forma.
 
-export class Person {
-  id: number;
-  // null = no integra ningún grupo familiar.
-  familyGroupId: number | null;
-  dni: string;
-  firstName: string;
-  lastName: string;
-  birthDate: Date;
-  email: string | null;
-  phone: string | null;
-}
+// El tipo lo genera Prisma a partir del model Person de prisma/schema.prisma.
+// Campos: id, familyGroupId, dni, firstName, lastName, birthDate, email y phone
+// (familyGroupId, email y phone pueden ser null). birthDate es un Date y en el
+// JSON de la respuesta sale como texto ISO ('1990-07-08T00:00:00.000Z').
+export type { Person } from '../../../generated/prisma/client.js';

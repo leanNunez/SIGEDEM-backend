@@ -1,20 +1,10 @@
 // QUÉ ES: cómo es una reserva de cancha (un turno de una hora).
 // NIVEL: entity — refleja la tabla bookings de database/schema.sql.
-// DÓNDE SE USA: todavía en ningún lado, porque en el TP 10 la API no lee la base.
-// A FUTURO: en el TP 11 BookingsService devuelve objetos con esta forma, y el tipo
-// lo genera Prisma a partir de prisma/schema.prisma.
+// DÓNDE SE USA: BookingsService y BookingsController devuelven objetos con esta forma.
 
-export class Booking {
-  id: number;
-  courtId: string;
-  // Cuál de las canchas iguales se reservó (1, 2, ...).
-  courtNumber: number;
-  date: Date;
-  // La hora del turno, de 0 a 23.
-  hour: number;
-  fullName: string;
-  dni: string;
-  phone: string;
-  isMember: boolean;
-  price: number;
-}
+// El tipo lo genera Prisma a partir del model Booking de prisma/schema.prisma.
+// Campos: id, courtId, courtNumber, date, hour, fullName, dni, phone, isMember
+// y price. date sale en el JSON como texto ISO ('2026-11-05T00:00:00.000Z').
+// price es NUMERIC(10, 2) en la tabla y Prisma lo trae como Decimal (un número
+// exacto, sin errores de redondeo). En el JSON sale como texto: "15000".
+export type { Booking } from '../../../generated/prisma/client.js';
