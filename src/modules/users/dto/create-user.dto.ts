@@ -15,8 +15,8 @@ import {
 // DÓNDE SE USA: UsersController lo recibe en POST /api/users.
 // A FUTURO: en el TP 12 UsersService guarda estos datos en la tabla users.
 
-// Cada decorador repite una regla de la tabla users (prisma/schema.prisma y los
-// CHECK de la migración init).
+// Cada decorador repite una regla de la tabla users (prisma/schema.prisma).
+// La tabla users no tiene CHECK: sus reglas son los largos de cada columna.
 // La contraseña llega en texto plano; cuando esté el login (TP 12), UsersService
 // la va a guardar hasheada en la columna password_hash: el hash nunca entra ni
 // sale por la API.
