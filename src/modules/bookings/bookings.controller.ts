@@ -11,7 +11,7 @@ import {
 import { BookingsService } from './bookings.service.js';
 import { CreateBookingDto } from './dto/create-booking.dto.js';
 import { UpdateBookingDto } from './dto/update-booking.dto.js';
-import { Booking } from './entities/booking.entity.js';
+import type { BookingWithRenter } from './entities/booking.entity.js';
 
 // QUÉ ES: las rutas de reservas de canchas (/api/bookings).
 // NIVEL: controller — recibe el pedido HTTP y le pasa el trabajo al service.
@@ -26,10 +26,10 @@ export class BookingsController {
 
   /**
    * GET /api/bookings — lista todas las reservas.
-   * @returns Las reservas.
+   * @returns Las reservas, cada una con quien alquila.
    */
   @Get()
-  findAll(): Promise<Booking[]> {
+  findAll(): Promise<BookingWithRenter[]> {
     return this.bookingsService.findAll();
   }
 
@@ -40,7 +40,7 @@ export class BookingsController {
    */
   @Get(':id')
   // ParseIntPipe convierte "1" en 1 y responde 400 si no es un número.
-  findOne(@Param('id', ParseIntPipe) id: number): Promise<Booking> {
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<BookingWithRenter> {
     return this.bookingsService.findOne(id);
   }
 
@@ -50,7 +50,9 @@ export class BookingsController {
    * @returns La reserva creada (responde 201).
    */
   @Post()
-  create(@Body() createBookingDto: CreateBookingDto): Promise<Booking> {
+  create(
+    @Body() createBookingDto: CreateBookingDto
+  ): Promise<BookingWithRenter> {
     return this.bookingsService.create(createBookingDto);
   }
 
@@ -64,7 +66,7 @@ export class BookingsController {
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateBookingDto: UpdateBookingDto
-  ): Promise<Booking> {
+  ): Promise<BookingWithRenter> {
     return this.bookingsService.update(id, updateBookingDto);
   }
 
@@ -74,7 +76,7 @@ export class BookingsController {
    * @returns La reserva borrada.
    */
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number): Promise<Booking> {
+  remove(@Param('id', ParseIntPipe) id: number): Promise<BookingWithRenter> {
     return this.bookingsService.remove(id);
   }
 }

@@ -221,18 +221,27 @@ model Court {
   @@map("courts")
 }
 
+model Renter {
+  id       Int       @id @default(autoincrement())
+  dni      String    @unique @db.VarChar(8)
+  fullName String    @map("full_name") @db.VarChar(120)
+  phone    String    @db.VarChar(30)
+  bookings Booking[]
+
+  @@map("renters")
+}
+
 model Booking {
   id          Int      @id @default(autoincrement())
   courtId     String   @map("court_id") @db.VarChar(30)
   courtNumber Int      @default(1) @map("court_number") @db.SmallInt
   date        DateTime @db.Date
   hour        Int      @db.SmallInt
-  fullName    String   @map("full_name") @db.VarChar(120)
-  dni         String   @db.VarChar(8)
-  phone       String   @db.VarChar(30)
+  renterId    Int      @map("renter_id")
   isMember    Boolean  @default(false) @map("is_member")
   price       Decimal  @db.Decimal(10, 2)
   court       Court    @relation(fields: [courtId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  renter      Renter   @relation(fields: [renterId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([courtId, courtNumber, date, hour])
   @@map("bookings")

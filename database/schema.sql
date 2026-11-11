@@ -2,7 +2,7 @@
 -- Sale del modelo de dominio de Metodología de Sistemas y de los formularios
 -- del front. Los id de plans y courts son los mismos que usa el front.
 
-DROP TABLE IF EXISTS bookings, courts, consents, medical_certificates, carnets,
+DROP TABLE IF EXISTS bookings, renters, courts, consents, medical_certificates, carnets,
   membership_members, memberships, payments, enrollments, prices, rate_tables,
   seasons, plans, persons, family_groups, users, roles;
 
@@ -174,17 +174,29 @@ CREATE TABLE courts (
   public_price NUMERIC(10, 2) NOT NULL CHECK (public_price >= member_price)
 );
 
--- Reserva de un turno de una hora. Los datos del que alquila no van a persons
--- porque el alquiler también está abierto a quien no es socio.
+-- Quien alquila una cancha. No va a persons porque el alquiler también está
+-- abierto a quien no es socio. Sus datos se guardan una sola vez por DNI: si
+-- estuvieran en bookings, el nombre y el teléfono dependerían del DNI y no de
+-- la reserva (dependencia transitiva), y se repetirían en cada reserva (3FN).
+CREATE TABLE renters (
+  id        SERIAL PRIMARY KEY,
+  -- Un DNI aparece una sola vez: la misma persona reusa su fila en cada reserva.
+  dni       VARCHAR(8) NOT NULL UNIQUE CHECK (dni ~ '^[0-9]{7,8}$'),
+  full_name VARCHAR(120) NOT NULL,
+  phone     VARCHAR(30) NOT NULL
+);
+
+-- Reserva de un turno de una hora.
 CREATE TABLE bookings (
   id           SERIAL PRIMARY KEY,
   court_id     VARCHAR(30) NOT NULL REFERENCES courts (id),
   court_number SMALLINT NOT NULL DEFAULT 1 CHECK (court_number > 0),
   date         DATE NOT NULL,
   hour         SMALLINT NOT NULL CHECK (hour BETWEEN 0 AND 23),
-  full_name    VARCHAR(120) NOT NULL,
-  dni          VARCHAR(8) NOT NULL CHECK (dni ~ '^[0-9]{7,8}$'),
-  phone        VARCHAR(30) NOT NULL,
+  renter_id    INTEGER NOT NULL REFERENCES renters (id),
+  -- is_member y price son una foto del momento de la reserva: si después el
+  -- que alquila deja de ser socio o cambia el precio de la cancha, la reserva
+  -- conserva lo que se cobró. Dependen de la reserva, no del DNI ni de la cancha.
   is_member    BOOLEAN NOT NULL DEFAULT FALSE,
   price        NUMERIC(10, 2) NOT NULL CHECK (price >= 0),
   -- Una misma cancha no se puede reservar dos veces en el mismo turno.
