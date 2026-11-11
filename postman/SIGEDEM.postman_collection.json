@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "SIGEDEM API",
-    "description": "Endpoints del backend de SIGEDEM (Programación IV). Elegí el entorno \"SIGEDEM local\" y levantá la API con `npm run start:dev` antes de mandar pedidos.",
+    "description": "Endpoints del backend de SIGEDEM (Programación IV). Elegí el entorno \"SIGEDEM local\" y levantá la API con `npm run start:dev` antes de mandar pedidos. Los pedidos de cada carpeta están pensados para correr en orden contra una base recién creada con la migración y seed.sql (npx prisma migrate dev y npx prisma db seed) (Run collection).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -36,7 +36,7 @@
     },
     {
       "name": "Planes",
-      "description": "Rutas de /api/plans. El body se valida con el DTO (TP 10), pero todavía no se usa la base: responden un mensaje y los datos recibidos.",
+      "description": "Rutas de /api/plans. Se corren en orden: Crear da de alta un plan nuevo, y Editar y Borrar trabajan sobre ese mismo registro, así la base vuelve a quedar como el seed. El plan nuevo usa el id fijo natacion-verano.",
       "item": [
         {
           "name": "Listar",
@@ -86,16 +86,16 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/plans/{{planId}}",
+              "raw": "{{baseUrl}}/plans/familiar",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "plans",
-                "{{planId}}"
+                "familiar"
               ]
             },
-            "description": "Devuelve un plan por id."
+            "description": "Devuelve un plan del seed por id."
           },
           "response": []
         },
@@ -139,12 +139,12 @@
                 "plans"
               ]
             },
-            "description": "Da de alta un plan."
+            "description": "Da de alta un plan nuevo."
           },
           "response": []
         },
         {
-          "name": "Modificar",
+          "name": "Editar",
           "event": [
             {
               "listen": "test",
@@ -175,16 +175,16 @@
               }
             },
             "url": {
-              "raw": "{{baseUrl}}/plans/{{planId}}",
+              "raw": "{{baseUrl}}/plans/natacion-verano",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "plans",
-                "{{planId}}"
+                "natacion-verano"
               ]
             },
-            "description": "Cambia los datos enviados de un plan."
+            "description": "Cambia los datos enviados de el plan creado."
           },
           "response": []
         },
@@ -206,390 +206,16 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/plans/{{planId}}",
+              "raw": "{{baseUrl}}/plans/natacion-verano",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "plans",
-                "{{planId}}"
+                "natacion-verano"
               ]
             },
-            "description": "Elimina un plan."
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Inscripciones",
-      "description": "Rutas de /api/enrollments. El body se valida con el DTO (TP 10), pero todavía no se usa la base: responden un mensaje y los datos recibidos.",
-      "item": [
-        {
-          "name": "Listar",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/enrollments",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "enrollments"
-              ]
-            },
-            "description": "Devuelve la lista completa."
-          },
-          "response": []
-        },
-        {
-          "name": "Ver uno",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/enrollments/{{enrollmentId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "enrollments",
-                "{{enrollmentId}}"
-              ]
-            },
-            "description": "Devuelve una inscripción por id."
-          },
-          "response": []
-        },
-        {
-          "name": "Crear",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Responde 201', () => pm.response.to.have.status(201));",
-                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"personId\": 3,\n  \"planId\": \"familiar\",\n  \"createdBy\": 1,\n  \"procedureDate\": \"2026-11-07\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/enrollments",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "enrollments"
-              ]
-            },
-            "description": "Da de alta una inscripción."
-          },
-          "response": []
-        },
-        {
-          "name": "Modificar",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"status\": \"anulada\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/enrollments/{{enrollmentId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "enrollments",
-                "{{enrollmentId}}"
-              ]
-            },
-            "description": "Cambia los datos enviados de una inscripción."
-          },
-          "response": []
-        },
-        {
-          "name": "Borrar",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/enrollments/{{enrollmentId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "enrollments",
-                "{{enrollmentId}}"
-              ]
-            },
-            "description": "Elimina una inscripción."
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Alquiler de canchas",
-      "description": "Rutas de /api/bookings. El body se valida con el DTO (TP 10), pero todavía no se usa la base: responden un mensaje y los datos recibidos.",
-      "item": [
-        {
-          "name": "Listar",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/bookings",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "bookings"
-              ]
-            },
-            "description": "Devuelve la lista completa."
-          },
-          "response": []
-        },
-        {
-          "name": "Ver uno",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/bookings/{{bookingId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "bookings",
-                "{{bookingId}}"
-              ]
-            },
-            "description": "Devuelve una reserva por id."
-          },
-          "response": []
-        },
-        {
-          "name": "Crear",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Responde 201', () => pm.response.to.have.status(201));",
-                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"courtId\": \"futbol-7\",\n  \"courtNumber\": 1,\n  \"date\": \"2026-11-20\",\n  \"hour\": 19,\n  \"fullName\": \"Pedro Ledesma\",\n  \"dni\": \"29123456\",\n  \"phone\": \"381 555-0201\",\n  \"isMember\": false,\n  \"price\": 36000\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/bookings",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "bookings"
-              ]
-            },
-            "description": "Da de alta una reserva."
-          },
-          "response": []
-        },
-        {
-          "name": "Modificar",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"hour\": 20\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/bookings/{{bookingId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "bookings",
-                "{{bookingId}}"
-              ]
-            },
-            "description": "Cambia los datos enviados de una reserva."
-          },
-          "response": []
-        },
-        {
-          "name": "Borrar",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/bookings/{{bookingId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "bookings",
-                "{{bookingId}}"
-              ]
-            },
-            "description": "Elimina una reserva."
+            "description": "Borra el plan creado."
           },
           "response": []
         }
@@ -777,6 +403,1023 @@
               ]
             },
             "description": "Elimina un usuario."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Personas",
+      "description": "Rutas de /api/persons. Se corren en orden: Crear da de alta una persona nueva, y Editar y Borrar trabajan sobre ese mismo registro, así la base vuelve a quedar como el seed. El id que devuelve Crear se guarda en la variable de colección personId.",
+      "item": [
+        {
+          "name": "Listar",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/persons",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "persons"
+              ]
+            },
+            "description": "Devuelve la lista completa."
+          },
+          "response": []
+        },
+        {
+          "name": "Ver uno",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/persons/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "persons",
+                "1"
+              ]
+            },
+            "description": "Devuelve una persona del seed por id."
+          },
+          "response": []
+        },
+        {
+          "name": "Crear",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                  "pm.collectionVariables.set('personId', pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"familyGroupId\": 5,\n  \"dni\": \"39123456\",\n  \"firstName\": \"Sofía\",\n  \"lastName\": \"Vega\",\n  \"birthDate\": \"1996-04-10\",\n  \"email\": \"sofia.vega@example.com\",\n  \"phone\": \"381 555-0109\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/persons",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "persons"
+              ]
+            },
+            "description": "Da de alta una persona nueva."
+          },
+          "response": []
+        },
+        {
+          "name": "Editar",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"381 555-0110\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/persons/{{personId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "persons",
+                "{{personId}}"
+              ]
+            },
+            "description": "Cambia los datos enviados de la persona creada."
+          },
+          "response": []
+        },
+        {
+          "name": "Borrar",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/persons/{{personId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "persons",
+                "{{personId}}"
+              ]
+            },
+            "description": "Borra la persona creada."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Inscripciones",
+      "description": "Rutas de /api/enrollments. Se corren en orden: Crear da de alta una inscripción nueva, y Editar y Borrar trabajan sobre ese mismo registro, así la base vuelve a quedar como el seed. El id que devuelve Crear se guarda en la variable de colección enrollmentId.",
+      "item": [
+        {
+          "name": "Listar",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/enrollments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "enrollments"
+              ]
+            },
+            "description": "Devuelve la lista completa."
+          },
+          "response": []
+        },
+        {
+          "name": "Ver uno",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/enrollments/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "enrollments",
+                "1"
+              ]
+            },
+            "description": "Devuelve una inscripción del seed por id."
+          },
+          "response": []
+        },
+        {
+          "name": "Crear",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                  "pm.collectionVariables.set('enrollmentId', pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"personId\": 3,\n  \"planId\": \"familiar\",\n  \"createdBy\": 1,\n  \"procedureDate\": \"2026-11-07\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/enrollments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "enrollments"
+              ]
+            },
+            "description": "Da de alta una inscripción nueva."
+          },
+          "response": []
+        },
+        {
+          "name": "Editar",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"anulada\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/enrollments/{{enrollmentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "enrollments",
+                "{{enrollmentId}}"
+              ]
+            },
+            "description": "Cambia los datos enviados de la inscripción creada."
+          },
+          "response": []
+        },
+        {
+          "name": "Borrar",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/enrollments/{{enrollmentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "enrollments",
+                "{{enrollmentId}}"
+              ]
+            },
+            "description": "Borra la inscripción creada."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Pagos",
+      "description": "Rutas de /api/payments. Se corren en orden: Crear da de alta un pago nuevo, y Editar y Borrar trabajan sobre ese mismo registro, así la base vuelve a quedar como el seed. El id que devuelve Crear se guarda en la variable de colección paymentId. El monto vuelve como texto (\"18000\") porque la columna es NUMERIC.",
+      "item": [
+        {
+          "name": "Listar",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/payments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments"
+              ]
+            },
+            "description": "Devuelve la lista completa."
+          },
+          "response": []
+        },
+        {
+          "name": "Ver uno",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/payments/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "1"
+              ]
+            },
+            "description": "Devuelve un pago del seed por id."
+          },
+          "response": []
+        },
+        {
+          "name": "Crear",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                  "pm.collectionVariables.set('paymentId', pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"enrollmentId\": 6,\n  \"amount\": 18000,\n  \"paidOn\": \"2026-11-02\",\n  \"operationNumber\": \"OP-100008\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments"
+              ]
+            },
+            "description": "Da de alta un pago nuevo."
+          },
+          "response": []
+        },
+        {
+          "name": "Editar",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"acreditado\",\n  \"verifiedBy\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payments/{{paymentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "{{paymentId}}"
+              ]
+            },
+            "description": "Cambia los datos enviados de el pago creado."
+          },
+          "response": []
+        },
+        {
+          "name": "Borrar",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/payments/{{paymentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "{{paymentId}}"
+              ]
+            },
+            "description": "Borra el pago creado."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Canchas",
+      "description": "Rutas de /api/courts. Se corren en orden: Crear da de alta una cancha nueva, y Editar y Borrar trabajan sobre ese mismo registro, así la base vuelve a quedar como el seed. La cancha nueva usa el id fijo futbol-9. Los precios vuelven como texto porque las columnas son NUMERIC.",
+      "item": [
+        {
+          "name": "Listar",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/courts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "courts"
+              ]
+            },
+            "description": "Devuelve la lista completa."
+          },
+          "response": []
+        },
+        {
+          "name": "Ver uno",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/courts/futbol-5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "courts",
+                "futbol-5"
+              ]
+            },
+            "description": "Devuelve una cancha del seed por id."
+          },
+          "response": []
+        },
+        {
+          "name": "Crear",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"futbol-9\",\n  \"activity\": \"futbol\",\n  \"name\": \"Fútbol 9\",\n  \"detail\": \"Cancha de prueba\",\n  \"units\": 1,\n  \"memberPrice\": 20000,\n  \"publicPrice\": 30000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/courts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "courts"
+              ]
+            },
+            "description": "Da de alta una cancha nueva."
+          },
+          "response": []
+        },
+        {
+          "name": "Editar",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"publicPrice\": 32000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/courts/futbol-9",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "courts",
+                "futbol-9"
+              ]
+            },
+            "description": "Cambia los datos enviados de la cancha creada."
+          },
+          "response": []
+        },
+        {
+          "name": "Borrar",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/courts/futbol-9",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "courts",
+                "futbol-9"
+              ]
+            },
+            "description": "Borra la cancha creada."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Alquiler de canchas",
+      "description": "Rutas de /api/bookings. Se corren en orden. El body trae fullName, dni y phone, pero la base los guarda en la tabla renters (una fila por DNI) y la reserva solo guarda renterId; las respuestas traen el renter adentro. Crear usa un DNI que ya alquiló (Pedro Ledesma, renter 2 del seed), así que reusa su fila; Crear con DNI nuevo da de alta un renter. Editar y Borrar trabajan sobre las reservas creadas, así las reservas vuelven a quedar como el seed (el renter nuevo queda guardado para futuras reservas). Los ids se guardan en bookingId y newRenterBookingId.",
+      "item": [
+        {
+          "name": "Listar",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bookings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bookings"
+              ]
+            },
+            "description": "Devuelve la lista completa."
+          },
+          "response": []
+        },
+        {
+          "name": "Ver uno",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bookings/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bookings",
+                "1"
+              ]
+            },
+            "description": "Devuelve una reserva del seed por id."
+          },
+          "response": []
+        },
+        {
+          "name": "Crear (DNI que ya alquiló)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                  "pm.test('Reusa el renter del seed', () => pm.expect(pm.response.json().renter.id).to.eql(2));",
+                  "pm.collectionVariables.set('bookingId', pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courtId\": \"futbol-7\",\n  \"courtNumber\": 1,\n  \"date\": \"2026-11-20\",\n  \"hour\": 19,\n  \"fullName\": \"Pedro Ledesma\",\n  \"dni\": \"29123456\",\n  \"phone\": \"381 555-0201\",\n  \"isMember\": false,\n  \"price\": 36000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bookings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bookings"
+              ]
+            },
+            "description": "Da de alta una reserva para un DNI que ya está en renters: no crea otro renter, reusa el del seed."
+          },
+          "response": []
+        },
+        {
+          "name": "Crear con DNI nuevo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                  "pm.test('Devuelve el renter con el DNI nuevo', () => pm.expect(pm.response.json().renter.dni).to.eql('42000111'));",
+                  "pm.collectionVariables.set('newRenterBookingId', pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courtId\": \"futbol-7\",\n  \"courtNumber\": 1,\n  \"date\": \"2026-11-20\",\n  \"hour\": 21,\n  \"fullName\": \"Marcos Herrera\",\n  \"dni\": \"42000111\",\n  \"phone\": \"381 555-0300\",\n  \"isMember\": false,\n  \"price\": 36000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bookings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bookings"
+              ]
+            },
+            "description": "Da de alta una reserva para un DNI que nunca alquiló: la API crea también su fila en renters."
+          },
+          "response": []
+        },
+        {
+          "name": "Editar",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"hour\": 20\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bookings/{{bookingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bookings",
+                "{{bookingId}}"
+              ]
+            },
+            "description": "Cambia los datos enviados de la reserva creada."
+          },
+          "response": []
+        },
+        {
+          "name": "Borrar",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bookings/{{bookingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bookings",
+                "{{bookingId}}"
+              ]
+            },
+            "description": "Borra la reserva creada."
+          },
+          "response": []
+        },
+        {
+          "name": "Borrar la de DNI nuevo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bookings/{{newRenterBookingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bookings",
+                "{{newRenterBookingId}}"
+              ]
+            },
+            "description": "Borra la reserva del DNI nuevo. El renter queda guardado."
           },
           "response": []
         }
@@ -971,7 +1614,7 @@
     },
     {
       "name": "TP 10 - Validaciones",
-      "description": "Pruebas del TP 10: cada carpeta manda un POST válido (201) y varios inválidos (400). El ValidationPipe global revisa el body contra los decoradores de class-validator del DTO; si algo no cumple, responde 400 con la lista de errores en message.",
+      "description": "Pruebas del TP 10: cada carpeta manda un POST válido (201) y varios inválidos (400). El ValidationPipe global revisa el body contra los decoradores de class-validator del DTO; si algo no cumple, responde 400 con la lista de errores en message. Con la base conectada, el POST válido crea el registro y el pedido que sigue lo borra, así la carpeta se puede correr varias veces.",
       "item": [
         {
           "name": "Planes",
@@ -986,8 +1629,7 @@
                     "type": "text/javascript",
                     "exec": [
                       "pm.test('Responde 201', () => pm.response.to.have.status(201));",
-                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
-                      "pm.test('Devuelve los datos recibidos', () => pm.expect(pm.response.json().data).to.eql(JSON.parse(pm.request.body.raw)));"
+                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
                     ]
                   }
                 }
@@ -1019,6 +1661,37 @@
                     }
                   }
                 }
+              },
+              "response": []
+            },
+            {
+              "name": "Borrar el creado (200)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/plans/natacion-verano",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "plans",
+                    "natacion-verano"
+                  ]
+                },
+                "description": "Borra el registro que creó el POST válido, así la base vuelve a quedar como el seed."
               },
               "response": []
             },
@@ -1176,7 +1849,7 @@
                     "exec": [
                       "pm.test('Responde 201', () => pm.response.to.have.status(201));",
                       "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
-                      "pm.test('Devuelve los datos recibidos', () => pm.expect(pm.response.json().data).to.eql(JSON.parse(pm.request.body.raw)));"
+                      "pm.collectionVariables.set('validationId', pm.response.json().id);"
                     ]
                   }
                 }
@@ -1208,6 +1881,37 @@
                     }
                   }
                 }
+              },
+              "response": []
+            },
+            {
+              "name": "Borrar el creado (200)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/persons/{{validationId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "persons",
+                    "{{validationId}}"
+                  ]
+                },
+                "description": "Borra el registro que creó el POST válido, así la base vuelve a quedar como el seed. El id lo guardó el pedido anterior en la variable validationId."
               },
               "response": []
             },
@@ -1365,7 +2069,7 @@
                     "exec": [
                       "pm.test('Responde 201', () => pm.response.to.have.status(201));",
                       "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
-                      "pm.test('Devuelve los datos recibidos', () => pm.expect(pm.response.json().data).to.eql(JSON.parse(pm.request.body.raw)));"
+                      "pm.collectionVariables.set('validationId', pm.response.json().id);"
                     ]
                   }
                 }
@@ -1397,6 +2101,37 @@
                     }
                   }
                 }
+              },
+              "response": []
+            },
+            {
+              "name": "Borrar el creado (200)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/enrollments/{{validationId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "enrollments",
+                    "{{validationId}}"
+                  ]
+                },
+                "description": "Borra el registro que creó el POST válido, así la base vuelve a quedar como el seed. El id lo guardó el pedido anterior en la variable validationId."
               },
               "response": []
             },
@@ -1554,7 +2289,7 @@
                     "exec": [
                       "pm.test('Responde 201', () => pm.response.to.have.status(201));",
                       "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
-                      "pm.test('Devuelve los datos recibidos', () => pm.expect(pm.response.json().data).to.eql(JSON.parse(pm.request.body.raw)));"
+                      "pm.collectionVariables.set('validationId', pm.response.json().id);"
                     ]
                   }
                 }
@@ -1586,6 +2321,37 @@
                     }
                   }
                 }
+              },
+              "response": []
+            },
+            {
+              "name": "Borrar el creado (200)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/payments/{{validationId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "payments",
+                    "{{validationId}}"
+                  ]
+                },
+                "description": "Borra el registro que creó el POST válido, así la base vuelve a quedar como el seed. El id lo guardó el pedido anterior en la variable validationId."
               },
               "response": []
             },
@@ -1696,8 +2462,7 @@
                     "type": "text/javascript",
                     "exec": [
                       "pm.test('Responde 201', () => pm.response.to.have.status(201));",
-                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
-                      "pm.test('Devuelve los datos recibidos', () => pm.expect(pm.response.json().data).to.eql(JSON.parse(pm.request.body.raw)));"
+                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
                     ]
                   }
                 }
@@ -1729,6 +2494,37 @@
                     }
                   }
                 }
+              },
+              "response": []
+            },
+            {
+              "name": "Borrar el creado (200)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/courts/futbol-9",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "courts",
+                    "futbol-9"
+                  ]
+                },
+                "description": "Borra el registro que creó el POST válido, así la base vuelve a quedar como el seed."
               },
               "response": []
             },
@@ -1886,7 +2682,7 @@
                     "exec": [
                       "pm.test('Responde 201', () => pm.response.to.have.status(201));",
                       "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
-                      "pm.test('Devuelve los datos recibidos', () => pm.expect(pm.response.json().data).to.eql(JSON.parse(pm.request.body.raw)));"
+                      "pm.collectionVariables.set('validationId', pm.response.json().id);"
                     ]
                   }
                 }
@@ -1918,6 +2714,37 @@
                     }
                   }
                 }
+              },
+              "response": []
+            },
+            {
+              "name": "Borrar el creado (200)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/bookings/{{validationId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "bookings",
+                    "{{validationId}}"
+                  ]
+                },
+                "description": "Borra el registro que creó el POST válido, así la base vuelve a quedar como el seed. El id lo guardó el pedido anterior en la variable validationId."
               },
               "response": []
             },
@@ -2154,6 +2981,43 @@
           ]
         }
       ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "userId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "personId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "enrollmentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "paymentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "bookingId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "newRenterBookingId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "validationId",
+      "value": "",
+      "type": "string"
     }
   ]
 }
