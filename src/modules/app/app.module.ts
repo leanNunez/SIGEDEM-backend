@@ -7,6 +7,7 @@ import { PaymentsModule } from '../payments/payments.module.js';
 import { PersonsModule } from '../persons/persons.module.js';
 import { PlansModule } from '../plans/plans.module.js';
 import { UsersModule } from '../users/users.module.js';
+import { PrismaModule } from '../../shared/database/prisma.module.js';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 
@@ -18,6 +19,8 @@ import { AppService } from './app.service.js';
 // tiene este. Cada módulo importado declara sus propias rutas.
 @Module({
   imports: [
+    // PrismaModule va primero: da la conexión a la base a todos los demás.
+    PrismaModule,
     AuthModule,
     UsersModule,
     PersonsModule,

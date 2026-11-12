@@ -14,9 +14,10 @@ import {
 // QUÉ ES: los datos que hay que mandar en el body para crear una cancha.
 // NIVEL: dto — describe lo que entra a la API y valida cada campo.
 // DÓNDE SE USA: CourtsController lo recibe en POST /api/courts.
-// A FUTURO: en el TP 11 los datos se guardan en la tabla courts (ver CourtsService).
+// Los datos se guardan en la tabla courts (ver CourtsService).
 
-// Cada decorador repite una regla de la tabla courts (database/schema.sql).
+// Cada decorador repite una regla de la tabla courts (prisma/schema.prisma y los
+// CHECK de la migración init).
 // La regla que compara dos campos (public_price >= member_price) la revisa
 // CourtsService, porque al editar puede venir uno solo de los dos precios.
 

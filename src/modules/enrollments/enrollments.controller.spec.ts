@@ -22,9 +22,9 @@ describe('EnrollmentsController', () => {
     controller = module.get<EnrollmentsController>(EnrollmentsController);
   });
 
-  it('findOne le pasa el id de la URL al service', () => {
-    enrollmentsService.findOne.mockReturnValue({ id: 1 });
-    expect(controller.findOne(1)).toEqual({ id: 1 });
+  it('findOne le pasa el id de la URL al service', async () => {
+    enrollmentsService.findOne.mockResolvedValue({ id: 1 });
+    await expect(controller.findOne(1)).resolves.toEqual({ id: 1 });
     expect(enrollmentsService.findOne).toHaveBeenCalledWith(1);
   });
 });

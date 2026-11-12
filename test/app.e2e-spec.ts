@@ -7,7 +7,8 @@ import { setupApp } from './../src/shared/config/setup-app.js';
 
 // QUÉ ES: los tests end-to-end: levantan la API entera y le mandan pedidos HTTP.
 // NIVEL: test — prueba las rutas como lo haría Postman, con la misma configuración.
-// DÓNDE SE USA: los corre npm run test:e2e.
+// DÓNDE SE USA: los corre npm run test:e2e. Necesita la base levantada y cargada
+// (con la migración y seed.sql), porque la API se conecta a PostgreSQL al arrancar.
 
 // Un body válido para POST /api/plans (los mismos datos que usa Postman).
 const NEW_PLAN = {
@@ -47,11 +48,11 @@ describe('App (e2e)', () => {
     return request(app.getHttpServer()).get('/api/no-existe').expect(404);
   });
 
-  it('POST /api/plans responde 201 con un body válido', () => {
-    return request(app.getHttpServer())
-      .post('/api/plans')
-      .send(NEW_PLAN)
-      .expect(201);
+  it('POST /api/plans responde 201 con un body válido', async () => {
+    const server = app.getHttpServer();
+    await request(server).post('/api/plans').send(NEW_PLAN).expect(201);
+    // Se borra enseguida, así la base vuelve a quedar como el seed.
+    await request(server).delete(`/api/plans/${NEW_PLAN.id}`).expect(200);
   });
 
   it('POST /api/plans responde 400 si falta un campo obligatorio', () => {
