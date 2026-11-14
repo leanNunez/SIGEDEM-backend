@@ -6,13 +6,14 @@ API del **Sistema Integral de Gestión Deportiva Municipal (SIGEDEM)** para la D
 
 ## Tecnologías
 
-| Capa          | Herramienta                       |
-| ------------- | --------------------------------- |
-| Framework     | NestJS 12 + TypeScript            |
-| Base de datos | PostgreSQL 18                     |
-| Tests         | Vitest (unitarios y e2e)          |
-| Calidad       | oxlint + Prettier                 |
-| Pruebas API   | Postman (colección en `postman/`) |
+| Capa          | Herramienta                         |
+| ------------- | ----------------------------------- |
+| Framework     | NestJS 12 + TypeScript              |
+| Base de datos | PostgreSQL 18                       |
+| Tests         | Vitest (unitarios y e2e)            |
+| Validación    | class-validator + class-transformer |
+| Calidad       | oxlint + Prettier                   |
+| Pruebas API   | Postman (colección en `postman/`)   |
 
 ## Inicio rápido
 
@@ -81,16 +82,41 @@ FRONTEND_URL=http://localhost:5173
 
 ## Endpoints
 
-Todas las rutas cuelgan de `/api`. Por ahora los módulos tienen la estructura armada pero **sin lógica de negocio**: responden un texto de prueba y todavía no leen la base.
+Todas las rutas cuelgan de `/api`. Los módulos ya **validan el body** con su DTO (TP 10), pero **todavía no leen ni escriben la base**: responden un mensaje y los datos que recibieron. La conexión a PostgreSQL con Prisma llega en el TP 11; usuarios e ingreso, en el TP 12.
 
-| Recurso       | Ruta              | Métodos                                                          | Estado       |
-| ------------- | ----------------- | ---------------------------------------------------------------- | ------------ |
-| Estado        | `/api`            | `GET`                                                            | ✅ Funciona  |
-| Planes        | `/api/plans`      | `GET` lista · `GET /:id` · `POST` · `PATCH /:id` · `DELETE /:id` | 🚧 Esqueleto |
-| Inscripciones | `/api/enrollment` | ídem                                                             | 🚧 Esqueleto |
-| Canchas       | `/api/booking`    | ídem                                                             | 🚧 Esqueleto |
-| Usuarios      | `/api/users`      | ídem                                                             | 🚧 Esqueleto |
-| Ingreso       | `/api/auth`       | ídem                                                             | 🚧 Esqueleto |
+| Recurso       | Ruta               | Id                 | Estado                  |
+| ------------- | ------------------ | ------------------ | ----------------------- |
+| Estado        | `/api`             | —                  | ✅ Funciona             |
+| Planes        | `/api/plans`       | texto (`familiar`) | 🧪 Valida, sin base aún |
+| Personas      | `/api/persons`     | número             | 🧪 Valida, sin base aún |
+| Inscripciones | `/api/enrollments` | número             | 🧪 Valida, sin base aún |
+| Pagos         | `/api/payments`    | número             | 🧪 Valida, sin base aún |
+| Canchas       | `/api/courts`      | texto (`futbol-5`) | 🧪 Valida, sin base aún |
+| Reservas      | `/api/bookings`    | número             | 🧪 Valida, sin base aún |
+| Usuarios      | `/api/users`       | número             | 🚧 Esqueleto (TP 12)    |
+| Ingreso       | `/api/auth`        | —                  | 🚧 Esqueleto (TP 12)    |
+
+Métodos de cada recurso: `GET` lista · `GET /:id` · `POST` · `PATCH /:id` · `DELETE /:id`.
+
+## TP 10: validaciones con DTOs
+
+Cada módulo tiene un `CreateXDto` y un `UpdateXDto` en su carpeta `dto/`. Los campos llevan decoradores de **class-validator** (`@IsString`, `@IsInt`, `@IsBoolean`, `@IsDateString`, `@IsIn`, `@Matches`, `@MaxLength`...) que repiten las reglas de las tablas de `database/schema.sql`. El controller recibe el DTO con `@Body()`.
+
+El `ValidationPipe` global (en `src/shared/config/setup-app.ts`) revisa cada body antes de que llegue al controller:
+
+| Caso                                               | Respuesta                                   |
+| -------------------------------------------------- | ------------------------------------------- |
+| El body cumple todas las reglas                    | `201` con `{ message, data }`               |
+| Falta un campo obligatorio                         | `400` con la lista de errores en `message`  |
+| Llega texto donde va un número (`"hour": "diez"`)  | `400` (`hour must be an integer number`)    |
+| Llega algo que no es booleano (`"isMember": "si"`) | `400` (`isMember must be a boolean value`)  |
+| Llega un campo que el DTO no declara               | `400` (`property price should not exist`)   |
+| La fecha no existe o trae hora (`"2026-02-30"`)    | `400` (`La fecha tiene que ser AAAA-MM-DD`) |
+| El id numérico de la URL no es un número           | `400` (lo controla `ParseIntPipe`)          |
+
+Algunos mensajes están en español porque el decorador tiene uno propio (por ejemplo, `La fecha tiene que ser AAAA-MM-DD`); los demás son los que trae class-validator, en inglés.
+
+**Cómo probarlo:** levantá la API (`npm run start:dev`) y en Postman abrí la carpeta **TP 10 - Validaciones**. Hay una subcarpeta por módulo con un POST válido (201) y POST inválidos (400); cada pedido trae un test que revisa el código y el mensaje de error. Con clic derecho en la carpeta → **Run folder** se corren todos. Los tests e2e (`npm run test:e2e`) prueban los mismos casos sin Postman.
 
 ## Pruebas con Postman
 
@@ -112,12 +138,16 @@ src/
     app/             Módulo raíz: reúne los módulos y expone GET /api
     auth/            Ingreso y permisos
     users/           Personal de la Dirección y sus roles
+    persons/         Padrón de vecinos
     plans/           Planes del abono
-    enrollment/      Inscripciones
-    booking/         Alquiler de canchas
+    enrollments/     Inscripciones
+    payments/        Pagos informados de las inscripciones
+    courts/          Canchas en alquiler
+    bookings/        Reservas de canchas
   shared/            Lo que usan varios módulos
-    config/          env.ts y setup-app.ts
-    database/        Conexión a PostgreSQL (próximamente)
+    config/          env.ts y setup-app.ts (prefijo /api, CORS y ValidationPipe)
+    database/        Conexión a PostgreSQL (llega en el TP 11)
+    types/           Tipos que comparten varios módulos
   main.ts            Solo arranca la app
 database/            schema.sql y seed.sql
 postman/             Colección y entorno de Postman
@@ -127,7 +157,7 @@ Cada módulo tiene la misma forma (ejemplo con `plans`):
 
 ```
 plans/
-  dto/                    Qué datos se reciben (create-plan.dto.ts, update-plan.dto.ts)
+  dto/                    Qué datos se reciben y sus validaciones (create-plan.dto.ts, update-plan.dto.ts)
   entities/               Cómo es un plan (plan.entity.ts)
   plans.controller.ts     Rutas: recibe el pedido y devuelve la respuesta
   plans.service.ts        Lógica de negocio
@@ -135,13 +165,13 @@ plans/
 ```
 
 - Las rutas las declara cada controller (`@Controller('plans')`); todas quedan bajo `/api`.
-- `main.ts` queda limpio: la configuración global (prefijo `/api`, CORS) está en `shared/config/setup-app.ts`.
+- `main.ts` queda limpio: la configuración global (prefijo `/api`, CORS, validación) está en `shared/config/setup-app.ts`.
 
 ## Próximos pasos
 
-- [ ] Conectar la API a PostgreSQL.
-- [ ] Lógica real en planes, inscripciones y alquiler de canchas.
-- [ ] Login con JWT y permisos por rol (operador, coordinador, médico, dirección).
+- [x] Validar los datos de entrada con DTOs y class-validator (TP 10).
+- [ ] Conectar la API a PostgreSQL con Prisma (TP 11).
+- [ ] Usuarios e ingreso: login con JWT y permisos por rol (TP 12).
 - [ ] Conectar el front a esta API en lugar de json-server.
 
 ## Flujo de trabajo

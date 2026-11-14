@@ -36,7 +36,7 @@
     },
     {
       "name": "Planes",
-      "description": "Rutas de /api/plans. Todavía son el esqueleto generado por Nest: responden un texto de prueba. Los cuerpos de ejemplo se ajustan cuando estén los DTO.",
+      "description": "Rutas de /api/plans. El body se valida con el DTO (TP 10), pero todavía no se usa la base: responden un mensaje y los datos recibidos.",
       "item": [
         {
           "name": "Listar",
@@ -123,7 +123,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Natación verano\",\n  \"price\": 15000\n}",
+              "raw": "{\n  \"id\": \"natacion-verano\",\n  \"name\": \"Natación verano\",\n  \"type\": \"individual\",\n  \"people\": \"1 persona\",\n  \"description\": \"Plan de prueba para la temporada de verano.\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -167,7 +167,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"price\": 18000\n}",
+              "raw": "{\n  \"badge\": \"Nuevo\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -223,7 +223,7 @@
     },
     {
       "name": "Inscripciones",
-      "description": "Rutas de /api/enrollment. Todavía son el esqueleto generado por Nest: responden un texto de prueba. Los cuerpos de ejemplo se ajustan cuando estén los DTO.",
+      "description": "Rutas de /api/enrollments. El body se valida con el DTO (TP 10), pero todavía no se usa la base: responden un mensaje y los datos recibidos.",
       "item": [
         {
           "name": "Listar",
@@ -243,12 +243,12 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/enrollment",
+              "raw": "{{baseUrl}}/enrollments",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "enrollment"
+                "enrollments"
               ]
             },
             "description": "Devuelve la lista completa."
@@ -273,12 +273,12 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/enrollment/{{enrollmentId}}",
+              "raw": "{{baseUrl}}/enrollments/{{enrollmentId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "enrollment",
+                "enrollments",
                 "{{enrollmentId}}"
               ]
             },
@@ -310,7 +310,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"personId\": 1,\n  \"planId\": 1\n}",
+              "raw": "{\n  \"personId\": 3,\n  \"planId\": \"familiar\",\n  \"createdBy\": 1,\n  \"procedureDate\": \"2026-11-07\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -318,12 +318,12 @@
               }
             },
             "url": {
-              "raw": "{{baseUrl}}/enrollment",
+              "raw": "{{baseUrl}}/enrollments",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "enrollment"
+                "enrollments"
               ]
             },
             "description": "Da de alta una inscripción."
@@ -354,7 +354,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"status\": \"acreditada\"\n}",
+              "raw": "{\n  \"status\": \"anulada\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -362,12 +362,12 @@
               }
             },
             "url": {
-              "raw": "{{baseUrl}}/enrollment/{{enrollmentId}}",
+              "raw": "{{baseUrl}}/enrollments/{{enrollmentId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "enrollment",
+                "enrollments",
                 "{{enrollmentId}}"
               ]
             },
@@ -393,12 +393,12 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/enrollment/{{enrollmentId}}",
+              "raw": "{{baseUrl}}/enrollments/{{enrollmentId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "enrollment",
+                "enrollments",
                 "{{enrollmentId}}"
               ]
             },
@@ -410,7 +410,7 @@
     },
     {
       "name": "Alquiler de canchas",
-      "description": "Rutas de /api/booking. Todavía son el esqueleto generado por Nest: responden un texto de prueba. Los cuerpos de ejemplo se ajustan cuando estén los DTO.",
+      "description": "Rutas de /api/bookings. El body se valida con el DTO (TP 10), pero todavía no se usa la base: responden un mensaje y los datos recibidos.",
       "item": [
         {
           "name": "Listar",
@@ -430,12 +430,12 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/booking",
+              "raw": "{{baseUrl}}/bookings",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "booking"
+                "bookings"
               ]
             },
             "description": "Devuelve la lista completa."
@@ -460,12 +460,12 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/booking/{{bookingId}}",
+              "raw": "{{baseUrl}}/bookings/{{bookingId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "booking",
+                "bookings",
                 "{{bookingId}}"
               ]
             },
@@ -497,7 +497,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"courtId\": 1,\n  \"date\": \"2026-12-01\",\n  \"startTime\": \"18:00\"\n}",
+              "raw": "{\n  \"courtId\": \"futbol-7\",\n  \"courtNumber\": 1,\n  \"date\": \"2026-11-20\",\n  \"hour\": 19,\n  \"fullName\": \"Pedro Ledesma\",\n  \"dni\": \"29123456\",\n  \"phone\": \"381 555-0201\",\n  \"isMember\": false,\n  \"price\": 36000\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -505,12 +505,12 @@
               }
             },
             "url": {
-              "raw": "{{baseUrl}}/booking",
+              "raw": "{{baseUrl}}/bookings",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "booking"
+                "bookings"
               ]
             },
             "description": "Da de alta una reserva."
@@ -541,7 +541,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"startTime\": \"19:00\"\n}",
+              "raw": "{\n  \"hour\": 20\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -549,12 +549,12 @@
               }
             },
             "url": {
-              "raw": "{{baseUrl}}/booking/{{bookingId}}",
+              "raw": "{{baseUrl}}/bookings/{{bookingId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "booking",
+                "bookings",
                 "{{bookingId}}"
               ]
             },
@@ -580,12 +580,12 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/booking/{{bookingId}}",
+              "raw": "{{baseUrl}}/bookings/{{bookingId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "booking",
+                "bookings",
                 "{{bookingId}}"
               ]
             },
@@ -597,7 +597,7 @@
     },
     {
       "name": "Usuarios",
-      "description": "Rutas de /api/users. Todavía son el esqueleto generado por Nest: responden un texto de prueba. Los cuerpos de ejemplo se ajustan cuando estén los DTO.",
+      "description": "Rutas de /api/users. Todavía son el esqueleto generado por Nest (se completan en el TP 12), pero el body ya se valida con el DTO.",
       "item": [
         {
           "name": "Listar",
@@ -684,7 +684,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"fullName\": \"Ana Pérez\",\n  \"email\": \"ana@sigedem.test\",\n  \"roleId\": 1\n}",
+              "raw": "{\n  \"roleId\": 1,\n  \"fullName\": \"Carlos Pérez\",\n  \"email\": \"carlos.perez@example.com\",\n  \"password\": \"clave-segura-123\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -728,7 +728,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"isActive\": false\n}",
+              "raw": "{\n  \"fullName\": \"Carlos A. Pérez\",\n  \"isActive\": false\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -784,7 +784,7 @@
     },
     {
       "name": "Ingreso",
-      "description": "Rutas de /api/auth. Todavía son el esqueleto generado por Nest: responden un texto de prueba. Los cuerpos de ejemplo se ajustan cuando estén los DTO.",
+      "description": "Rutas de /api/auth. Todavía son el esqueleto generado por Nest (se completan en el TP 12), pero el body ya se valida con el DTO.",
       "item": [
         {
           "name": "Listar",
@@ -915,7 +915,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"password\": \"otra-clave\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -966,6 +966,1192 @@
             "description": "Elimina un registro de ingreso."
           },
           "response": []
+        }
+      ]
+    },
+    {
+      "name": "TP 10 - Validaciones",
+      "description": "Pruebas del TP 10: cada carpeta manda un POST válido (201) y varios inválidos (400). El ValidationPipe global revisa el body contra los decoradores de class-validator del DTO; si algo no cumple, responde 400 con la lista de errores en message.",
+      "item": [
+        {
+          "name": "Planes",
+          "description": "POST /api/plans con un body válido y con bodies inválidos.",
+          "item": [
+            {
+              "name": "Válido (201)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Responde 201', () => pm.response.to.have.status(201));",
+                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                      "pm.test('Devuelve los datos recibidos', () => pm.expect(pm.response.json().data).to.eql(JSON.parse(pm.request.body.raw)));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/plans",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "plans"
+                  ]
+                },
+                "description": "Body con todos los campos bien: pasa el ValidationPipe y responde 201.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id\": \"natacion-verano\",\n  \"name\": \"Natación verano\",\n  \"type\": \"individual\",\n  \"people\": \"1 persona\",\n  \"description\": \"Plan de prueba para la temporada de verano.\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Falta un campo obligatorio (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Responde 400', () => pm.response.to.have.status(400));",
+                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                      "const messages = [].concat(pm.response.json().message).join(' | ');",
+                      "pm.test('Explica qué falló', () => pm.expect(messages).to.include(\"name should not be empty\"));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/plans",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "plans"
+                  ]
+                },
+                "description": "Falta name: @IsNotEmpty y @IsString lo rechazan.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id\": \"natacion-verano\",\n  \"type\": \"individual\",\n  \"people\": \"1 persona\",\n  \"description\": \"Plan de prueba para la temporada de verano.\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Valor fuera de la lista (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Responde 400', () => pm.response.to.have.status(400));",
+                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                      "const messages = [].concat(pm.response.json().message).join(' | ');",
+                      "pm.test('Explica qué falló', () => pm.expect(messages).to.include(\"El tipo tiene que ser individual o familiar\"));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/plans",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "plans"
+                  ]
+                },
+                "description": "type solo acepta individual o familiar (@IsIn). Plans no tiene campos numéricos ni booleanos.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id\": \"natacion-verano\",\n  \"name\": \"Natación verano\",\n  \"type\": \"grupal\",\n  \"people\": \"1 persona\",\n  \"description\": \"Plan de prueba para la temporada de verano.\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Campo que el DTO no declara (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Responde 400', () => pm.response.to.have.status(400));",
+                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                      "const messages = [].concat(pm.response.json().message).join(' | ');",
+                      "pm.test('Explica qué falló', () => pm.expect(messages).to.include(\"property price should not exist\"));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/plans",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "plans"
+                  ]
+                },
+                "description": "forbidNonWhitelisted: price no está en CreatePlanDto, así que responde 400.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id\": \"natacion-verano\",\n  \"name\": \"Natación verano\",\n  \"type\": \"individual\",\n  \"people\": \"1 persona\",\n  \"description\": \"Plan de prueba para la temporada de verano.\",\n  \"price\": 15000\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Personas",
+          "description": "POST /api/persons con un body válido y con bodies inválidos.",
+          "item": [
+            {
+              "name": "Válido (201)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Responde 201', () => pm.response.to.have.status(201));",
+                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                      "pm.test('Devuelve los datos recibidos', () => pm.expect(pm.response.json().data).to.eql(JSON.parse(pm.request.body.raw)));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/persons",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "persons"
+                  ]
+                },
+                "description": "Body con todos los campos bien: pasa el ValidationPipe y responde 201.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"familyGroupId\": 5,\n  \"dni\": \"39123456\",\n  \"firstName\": \"Sofía\",\n  \"lastName\": \"Vega\",\n  \"birthDate\": \"1996-04-10\",\n  \"email\": \"sofia.vega@example.com\",\n  \"phone\": \"381 555-0109\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Falta un campo obligatorio (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Responde 400', () => pm.response.to.have.status(400));",
+                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                      "const messages = [].concat(pm.response.json().message).join(' | ');",
+                      "pm.test('Explica qué falló', () => pm.expect(messages).to.include(\"El DNI tiene que tener 7 u 8 números, sin puntos\"));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/persons",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "persons"
+                  ]
+                },
+                "description": "Falta dni: @IsString y @Matches lo rechazan.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"familyGroupId\": 5,\n  \"firstName\": \"Sofía\",\n  \"lastName\": \"Vega\",\n  \"birthDate\": \"1996-04-10\",\n  \"email\": \"sofia.vega@example.com\",\n  \"phone\": \"381 555-0109\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Texto donde va un número (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Responde 400', () => pm.response.to.have.status(400));",
+                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                      "const messages = [].concat(pm.response.json().message).join(' | ');",
+                      "pm.test('Explica qué falló', () => pm.expect(messages).to.include(\"familyGroupId must be an integer number\"));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/persons",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "persons"
+                  ]
+                },
+                "description": "familyGroupId tiene que ser un número entero (@IsInt). Persons no tiene campos booleanos.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"familyGroupId\": \"cinco\",\n  \"dni\": \"39123456\",\n  \"firstName\": \"Sofía\",\n  \"lastName\": \"Vega\",\n  \"birthDate\": \"1996-04-10\",\n  \"email\": \"sofia.vega@example.com\",\n  \"phone\": \"381 555-0109\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "DNI con puntos (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Responde 400', () => pm.response.to.have.status(400));",
+                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                      "const messages = [].concat(pm.response.json().message).join(' | ');",
+                      "pm.test('Explica qué falló', () => pm.expect(messages).to.include(\"El DNI tiene que tener 7 u 8 números, sin puntos\"));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/persons",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "persons"
+                  ]
+                },
+                "description": "La regex del DNI (@Matches) solo acepta 7 u 8 números.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"familyGroupId\": 5,\n  \"dni\": \"39.123.456\",\n  \"firstName\": \"Sofía\",\n  \"lastName\": \"Vega\",\n  \"birthDate\": \"1996-04-10\",\n  \"email\": \"sofia.vega@example.com\",\n  \"phone\": \"381 555-0109\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Inscripciones",
+          "description": "POST /api/enrollments con un body válido y con bodies inválidos.",
+          "item": [
+            {
+              "name": "Válido (201)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Responde 201', () => pm.response.to.have.status(201));",
+                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                      "pm.test('Devuelve los datos recibidos', () => pm.expect(pm.response.json().data).to.eql(JSON.parse(pm.request.body.raw)));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/enrollments",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "enrollments"
+                  ]
+                },
+                "description": "Body con todos los campos bien: pasa el ValidationPipe y responde 201.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"personId\": 3,\n  \"planId\": \"familiar\",\n  \"createdBy\": 1,\n  \"procedureDate\": \"2026-11-07\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Falta un campo obligatorio (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Responde 400', () => pm.response.to.have.status(400));",
+                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                      "const messages = [].concat(pm.response.json().message).join(' | ');",
+                      "pm.test('Explica qué falló', () => pm.expect(messages).to.include(\"planId should not be empty\"));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/enrollments",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "enrollments"
+                  ]
+                },
+                "description": "Falta planId: @IsNotEmpty y @IsString lo rechazan.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"personId\": 3,\n  \"createdBy\": 1,\n  \"procedureDate\": \"2026-11-07\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Texto donde va un número (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Responde 400', () => pm.response.to.have.status(400));",
+                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                      "const messages = [].concat(pm.response.json().message).join(' | ');",
+                      "pm.test('Explica qué falló', () => pm.expect(messages).to.include(\"personId must be an integer number\"));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/enrollments",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "enrollments"
+                  ]
+                },
+                "description": "personId tiene que ser un número entero (@IsInt). Enrollments no tiene campos booleanos.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"personId\": \"tres\",\n  \"planId\": \"familiar\",\n  \"createdBy\": 1,\n  \"procedureDate\": \"2026-11-07\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Valor fuera de la lista (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Responde 400', () => pm.response.to.have.status(400));",
+                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                      "const messages = [].concat(pm.response.json().message).join(' | ');",
+                      "pm.test('Explica qué falló', () => pm.expect(messages).to.include(\"El estado tiene que ser pendiente, acreditada o anulada\"));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/enrollments",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "enrollments"
+                  ]
+                },
+                "description": "status solo acepta pendiente, acreditada o anulada (@IsIn).",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"personId\": 3,\n  \"planId\": \"familiar\",\n  \"createdBy\": 1,\n  \"procedureDate\": \"2026-11-07\",\n  \"status\": \"aprobada\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Pagos",
+          "description": "POST /api/payments con un body válido y con bodies inválidos.",
+          "item": [
+            {
+              "name": "Válido (201)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Responde 201', () => pm.response.to.have.status(201));",
+                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                      "pm.test('Devuelve los datos recibidos', () => pm.expect(pm.response.json().data).to.eql(JSON.parse(pm.request.body.raw)));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/payments",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "payments"
+                  ]
+                },
+                "description": "Body con todos los campos bien: pasa el ValidationPipe y responde 201.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"enrollmentId\": 6,\n  \"amount\": 18000,\n  \"paidOn\": \"2026-11-02\",\n  \"operationNumber\": \"OP-100008\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Falta un campo obligatorio (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Responde 400', () => pm.response.to.have.status(400));",
+                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                      "const messages = [].concat(pm.response.json().message).join(' | ');",
+                      "pm.test('Explica qué falló', () => pm.expect(messages).to.include(\"operationNumber should not be empty\"));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/payments",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "payments"
+                  ]
+                },
+                "description": "Falta operationNumber: @IsNotEmpty y @IsString lo rechazan.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"enrollmentId\": 6,\n  \"amount\": 18000,\n  \"paidOn\": \"2026-11-02\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Texto donde va un número (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Responde 400', () => pm.response.to.have.status(400));",
+                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                      "const messages = [].concat(pm.response.json().message).join(' | ');",
+                      "pm.test('Explica qué falló', () => pm.expect(messages).to.include(\"El monto tiene que ser un número con hasta 2 decimales\"));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/payments",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "payments"
+                  ]
+                },
+                "description": "amount tiene que ser un número (@IsNumber). Payments no tiene campos booleanos.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"enrollmentId\": 6,\n  \"amount\": \"dieciocho mil\",\n  \"paidOn\": \"2026-11-02\",\n  \"operationNumber\": \"OP-100008\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Canchas",
+          "description": "POST /api/courts con un body válido y con bodies inválidos.",
+          "item": [
+            {
+              "name": "Válido (201)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Responde 201', () => pm.response.to.have.status(201));",
+                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                      "pm.test('Devuelve los datos recibidos', () => pm.expect(pm.response.json().data).to.eql(JSON.parse(pm.request.body.raw)));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/courts",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "courts"
+                  ]
+                },
+                "description": "Body con todos los campos bien: pasa el ValidationPipe y responde 201.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id\": \"futbol-9\",\n  \"activity\": \"futbol\",\n  \"name\": \"Fútbol 9\",\n  \"detail\": \"Cancha de prueba\",\n  \"units\": 1,\n  \"memberPrice\": 20000,\n  \"publicPrice\": 30000\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Falta un campo obligatorio (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Responde 400', () => pm.response.to.have.status(400));",
+                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                      "const messages = [].concat(pm.response.json().message).join(' | ');",
+                      "pm.test('Explica qué falló', () => pm.expect(messages).to.include(\"name should not be empty\"));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/courts",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "courts"
+                  ]
+                },
+                "description": "Falta name: @IsNotEmpty y @IsString lo rechazan.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id\": \"futbol-9\",\n  \"activity\": \"futbol\",\n  \"detail\": \"Cancha de prueba\",\n  \"units\": 1,\n  \"memberPrice\": 20000,\n  \"publicPrice\": 30000\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Texto donde va un número (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Responde 400', () => pm.response.to.have.status(400));",
+                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                      "const messages = [].concat(pm.response.json().message).join(' | ');",
+                      "pm.test('Explica qué falló', () => pm.expect(messages).to.include(\"units must be an integer number\"));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/courts",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "courts"
+                  ]
+                },
+                "description": "units tiene que ser un número entero (@IsInt). Courts no tiene campos booleanos.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id\": \"futbol-9\",\n  \"activity\": \"futbol\",\n  \"name\": \"Fútbol 9\",\n  \"detail\": \"Cancha de prueba\",\n  \"units\": \"una\",\n  \"memberPrice\": 20000,\n  \"publicPrice\": 30000\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Precio público menor que el de socios (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Responde 400', () => pm.response.to.have.status(400));",
+                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                      "const messages = [].concat(pm.response.json().message).join(' | ');",
+                      "pm.test('Explica qué falló', () => pm.expect(messages).to.include(\"El precio para el público no puede ser menor que el precio para socios\"));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/courts",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "courts"
+                  ]
+                },
+                "description": "Cada campo es válido, pero CourtsService revisa la regla que compara los dos precios.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id\": \"futbol-9\",\n  \"activity\": \"futbol\",\n  \"name\": \"Fútbol 9\",\n  \"detail\": \"Cancha de prueba\",\n  \"units\": 1,\n  \"memberPrice\": 30000,\n  \"publicPrice\": 20000\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Alquiler de canchas",
+          "description": "POST /api/bookings con un body válido y con bodies inválidos.",
+          "item": [
+            {
+              "name": "Válido (201)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Responde 201', () => pm.response.to.have.status(201));",
+                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                      "pm.test('Devuelve los datos recibidos', () => pm.expect(pm.response.json().data).to.eql(JSON.parse(pm.request.body.raw)));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/bookings",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "bookings"
+                  ]
+                },
+                "description": "Body con todos los campos bien: pasa el ValidationPipe y responde 201.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"courtId\": \"futbol-7\",\n  \"courtNumber\": 1,\n  \"date\": \"2026-11-20\",\n  \"hour\": 19,\n  \"fullName\": \"Pedro Ledesma\",\n  \"dni\": \"29123456\",\n  \"phone\": \"381 555-0201\",\n  \"isMember\": false,\n  \"price\": 36000\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Falta un campo obligatorio (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Responde 400', () => pm.response.to.have.status(400));",
+                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                      "const messages = [].concat(pm.response.json().message).join(' | ');",
+                      "pm.test('Explica qué falló', () => pm.expect(messages).to.include(\"La fecha tiene que ser AAAA-MM-DD\"));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/bookings",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "bookings"
+                  ]
+                },
+                "description": "Falta date: @IsDateString lo rechaza.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"courtId\": \"futbol-7\",\n  \"courtNumber\": 1,\n  \"hour\": 19,\n  \"fullName\": \"Pedro Ledesma\",\n  \"dni\": \"29123456\",\n  \"phone\": \"381 555-0201\",\n  \"isMember\": false,\n  \"price\": 36000\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Texto donde va un número (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Responde 400', () => pm.response.to.have.status(400));",
+                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                      "const messages = [].concat(pm.response.json().message).join(' | ');",
+                      "pm.test('Explica qué falló', () => pm.expect(messages).to.include(\"hour must be an integer number\"));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/bookings",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "bookings"
+                  ]
+                },
+                "description": "hour tiene que ser un número entero entre 0 y 23 (@IsInt, @Min, @Max).",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"courtId\": \"futbol-7\",\n  \"courtNumber\": 1,\n  \"date\": \"2026-11-20\",\n  \"hour\": \"diecinueve\",\n  \"fullName\": \"Pedro Ledesma\",\n  \"dni\": \"29123456\",\n  \"phone\": \"381 555-0201\",\n  \"isMember\": false,\n  \"price\": 36000\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Booleano inválido (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Responde 400', () => pm.response.to.have.status(400));",
+                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                      "const messages = [].concat(pm.response.json().message).join(' | ');",
+                      "pm.test('Explica qué falló', () => pm.expect(messages).to.include(\"isMember must be a boolean value\"));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/bookings",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "bookings"
+                  ]
+                },
+                "description": "isMember tiene que ser true o false (@IsBoolean): el texto \"si\" no sirve.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"courtId\": \"futbol-7\",\n  \"courtNumber\": 1,\n  \"date\": \"2026-11-20\",\n  \"hour\": 19,\n  \"fullName\": \"Pedro Ledesma\",\n  \"dni\": \"29123456\",\n  \"phone\": \"381 555-0201\",\n  \"isMember\": \"si\",\n  \"price\": 36000\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Fecha que no existe (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Responde 400', () => pm.response.to.have.status(400));",
+                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                      "const messages = [].concat(pm.response.json().message).join(' | ');",
+                      "pm.test('Explica qué falló', () => pm.expect(messages).to.include(\"La fecha tiene que ser AAAA-MM-DD\"));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/bookings",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "bookings"
+                  ]
+                },
+                "description": "Pide el 30 de febrero: @IsDateString con strict: true lo rechaza (sin strict se guardaba como 2 de marzo).",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"courtId\": \"futbol-7\",\n  \"courtNumber\": 1,\n  \"date\": \"2026-02-30\",\n  \"hour\": 19,\n  \"fullName\": \"Pedro Ledesma\",\n  \"dni\": \"29123456\",\n  \"phone\": \"381 555-0201\",\n  \"isMember\": false,\n  \"price\": 36000\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Fecha con hora y zona horaria (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Responde 400', () => pm.response.to.have.status(400));",
+                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                      "const messages = [].concat(pm.response.json().message).join(' | ');",
+                      "pm.test('Explica qué falló', () => pm.expect(messages).to.include(\"La fecha tiene que ser AAAA-MM-DD\"));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/bookings",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "bookings"
+                  ]
+                },
+                "description": "Manda fecha con hora y zona horaria: @Matches exige AAAA-MM-DD, porque al guardarla como DATE podía cambiar de día.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"courtId\": \"futbol-7\",\n  \"courtNumber\": 1,\n  \"date\": \"2026-12-01T23:00:00-03:00\",\n  \"hour\": 19,\n  \"fullName\": \"Pedro Ledesma\",\n  \"dni\": \"29123456\",\n  \"phone\": \"381 555-0201\",\n  \"isMember\": false,\n  \"price\": 36000\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            }
+          ]
         }
       ]
     }
