@@ -8,10 +8,10 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import type { PlaceholderResponse } from '../../shared/types/placeholder-response.js';
 import { BookingsService } from './bookings.service.js';
 import { CreateBookingDto } from './dto/create-booking.dto.js';
 import { UpdateBookingDto } from './dto/update-booking.dto.js';
+import type { BookingWithRenter } from './entities/booking.entity.js';
 
 // QUÉ ES: las rutas de reservas de canchas (/api/bookings).
 // NIVEL: controller — recibe el pedido HTTP y le pasa el trabajo al service.
@@ -26,33 +26,33 @@ export class BookingsController {
 
   /**
    * GET /api/bookings — lista todas las reservas.
-   * @returns Un mensaje provisorio (en el TP 11, la lista de las reservas).
+   * @returns Las reservas, cada una con quien alquila.
    */
   @Get()
-  findAll(): PlaceholderResponse {
+  findAll(): Promise<BookingWithRenter[]> {
     return this.bookingsService.findAll();
   }
 
   /**
    * GET /api/bookings/:id — devuelve una reserva.
    * @param id - El id que viene en la URL (/api/bookings/1 → 1).
-   * @returns Un mensaje con el id pedido.
+   * @returns La reserva encontrada.
    */
   @Get(':id')
   // ParseIntPipe convierte "1" en 1 y responde 400 si no es un número.
-  findOne(@Param('id', ParseIntPipe) id: number): PlaceholderResponse {
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<BookingWithRenter> {
     return this.bookingsService.findOne(id);
   }
 
   /**
    * POST /api/bookings — crea una reserva.
    * @param createBookingDto - El body del pedido, ya validado por ValidationPipe.
-   * @returns Un mensaje con los datos recibidos (responde 201).
+   * @returns La reserva creada (responde 201).
    */
   @Post()
   create(
     @Body() createBookingDto: CreateBookingDto
-  ): PlaceholderResponse<CreateBookingDto> {
+  ): Promise<BookingWithRenter> {
     return this.bookingsService.create(createBookingDto);
   }
 
@@ -60,23 +60,23 @@ export class BookingsController {
    * PATCH /api/bookings/:id — edita una reserva.
    * @param id - El id que viene en la URL.
    * @param updateBookingDto - Solo los campos que cambian.
-   * @returns Un mensaje con el id y los cambios recibidos.
+   * @returns La reserva editada.
    */
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateBookingDto: UpdateBookingDto
-  ): PlaceholderResponse<UpdateBookingDto> {
+  ): Promise<BookingWithRenter> {
     return this.bookingsService.update(id, updateBookingDto);
   }
 
   /**
    * DELETE /api/bookings/:id — borra (cancela) una reserva.
    * @param id - El id que viene en la URL.
-   * @returns Un mensaje con el id pedido.
+   * @returns La reserva borrada.
    */
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number): PlaceholderResponse {
+  remove(@Param('id', ParseIntPipe) id: number): Promise<BookingWithRenter> {
     return this.bookingsService.remove(id);
   }
 }

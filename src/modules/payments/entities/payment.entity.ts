@@ -1,19 +1,11 @@
 // QUÉ ES: cómo es un pago informado (la transferencia de una inscripción).
-// NIVEL: entity — refleja la tabla payments de database/schema.sql.
-// DÓNDE SE USA: todavía en ningún lado, porque en el TP 10 la API no lee la base.
-// A FUTURO: en el TP 11 PaymentsService devuelve objetos con esta forma, y el tipo
-// lo genera Prisma a partir de prisma/schema.prisma.
+// NIVEL: entity — refleja la tabla payments (prisma/schema.prisma).
+// DÓNDE SE USA: PaymentsService y PaymentsController devuelven objetos con esta forma.
 
-export class Payment {
-  id: number;
-  enrollmentId: number;
-  method: string;
-  amount: number;
-  paidOn: Date;
-  // El número de la transferencia; es único para detectar comprobantes repetidos.
-  operationNumber: string;
-  // Solo puede ser uno de estos valores (igual que el CHECK de la tabla).
-  status: 'pendiente' | 'acreditado' | 'rechazado';
-  // El usuario que verificó el pago; null mientras nadie lo revisó.
-  verifiedBy: number | null;
-}
+// El tipo lo genera Prisma a partir del model Payment de prisma/schema.prisma.
+// Campos: id, enrollmentId, method, amount, paidOn, operationNumber, status y
+// verifiedBy (verifiedBy puede ser null).
+// amount es NUMERIC(10, 2) en la tabla y Prisma lo trae como Decimal (un número
+// exacto, sin errores de redondeo). En el JSON de la respuesta sale como texto:
+// "18000" en vez de 18000.
+export type { Payment } from '../../../generated/prisma/client.js';

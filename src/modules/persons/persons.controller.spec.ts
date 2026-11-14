@@ -20,9 +20,9 @@ describe('PersonsController', () => {
     controller = module.get<PersonsController>(PersonsController);
   });
 
-  it('findOne le pasa el id de la URL al service', () => {
-    personsService.findOne.mockReturnValue({ id: 1 });
-    expect(controller.findOne(1)).toEqual({ id: 1 });
+  it('findOne le pasa el id de la URL al service', async () => {
+    personsService.findOne.mockResolvedValue({ id: 1 });
+    await expect(controller.findOne(1)).resolves.toEqual({ id: 1 });
     expect(personsService.findOne).toHaveBeenCalledWith(1);
   });
 });

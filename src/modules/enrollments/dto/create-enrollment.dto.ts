@@ -14,9 +14,10 @@ import { DATE_ONLY_PATTERN } from '../../../shared/validation/date-pattern.js';
 // QUÉ ES: los datos que hay que mandar en el body para crear una inscripción.
 // NIVEL: dto — describe lo que entra a la API y valida cada campo.
 // DÓNDE SE USA: EnrollmentsController lo recibe en POST /api/enrollments.
-// A FUTURO: en el TP 11 los datos se guardan en la tabla enrollments (ver EnrollmentsService).
+// Los datos se guardan en la tabla enrollments (ver EnrollmentsService).
 
-// Cada decorador repite una regla de la tabla enrollments (database/schema.sql).
+// Cada decorador repite una regla de la tabla enrollments (prisma/schema.prisma y los
+// CHECK de la migración init).
 // loadedAt no va acá: la base lo completa sola con la fecha y hora de carga.
 
 // Los mismos valores que permite el CHECK de la columna status.
@@ -56,7 +57,7 @@ export class CreateEnrollmentDto {
   // La fecha llega en texto, por ejemplo '2026-10-01'.
   // @IsDateString con strict: true rechaza días que no existen ('2026-02-30').
   // @Matches exige AAAA-MM-DD, sin hora ni zona horaria (ver date-pattern.ts).
-  // En el TP 11, EnrollmentsService la va a convertir en Date antes de guardarla.
+  // EnrollmentsService la convierte en Date antes de guardarla.
   @IsDateString(
     { strict: true },
     { message: 'La fecha del trámite tiene que ser AAAA-MM-DD' }

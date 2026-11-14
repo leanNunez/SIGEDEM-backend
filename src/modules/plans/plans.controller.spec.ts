@@ -20,9 +20,11 @@ describe('PlansController', () => {
     controller = module.get<PlansController>(PlansController);
   });
 
-  it('findOne le pasa el id de la URL al service', () => {
-    plansService.findOne.mockReturnValue({ id: 'familiar' });
-    expect(controller.findOne('familiar')).toEqual({ id: 'familiar' });
+  it('findOne le pasa el id de la URL al service', async () => {
+    plansService.findOne.mockResolvedValue({ id: 'familiar' });
+    await expect(controller.findOne('familiar')).resolves.toEqual({
+      id: 'familiar',
+    });
     expect(plansService.findOne).toHaveBeenCalledWith('familiar');
   });
 });

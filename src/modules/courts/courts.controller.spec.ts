@@ -20,9 +20,11 @@ describe('CourtsController', () => {
     controller = module.get<CourtsController>(CourtsController);
   });
 
-  it('findOne le pasa el id de la URL al service', () => {
-    courtsService.findOne.mockReturnValue({ id: 'futbol-5' });
-    expect(controller.findOne('futbol-5')).toEqual({ id: 'futbol-5' });
+  it('findOne le pasa el id de la URL al service', async () => {
+    courtsService.findOne.mockResolvedValue({ id: 'futbol-5' });
+    await expect(controller.findOne('futbol-5')).resolves.toEqual({
+      id: 'futbol-5',
+    });
     expect(courtsService.findOne).toHaveBeenCalledWith('futbol-5');
   });
 });

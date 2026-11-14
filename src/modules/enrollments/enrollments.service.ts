@@ -1,78 +1,96 @@
-import { Injectable } from '@nestjs/common';
-import type { PlaceholderResponse } from '../../shared/types/placeholder-response.js';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../../shared/database/prisma.service.js';
 import { CreateEnrollmentDto } from './dto/create-enrollment.dto.js';
 import { UpdateEnrollmentDto } from './dto/update-enrollment.dto.js';
+import { Enrollment } from './entities/enrollment.entity.js';
 
-// QUÉ ES: el servicio de las inscripciones: listar, buscar, crear, editar y borrar.
+// QUÉ ES: el servicio de inscripciones: listar, buscar, crear, editar y borrar.
 // NIVEL: service — acá va la lógica; el controller solo recibe y responde.
 // DÓNDE SE USA: EnrollmentsController lo recibe por inyección de dependencias.
-// A FUTURO: en el TP 11 se conecta a la tabla enrollments con Prisma. Por ahora
-// no guarda nada: responde un mensaje y los datos que llegaron, ya validados.
+
+// Los errores de la base (formulario cargado dos veces, FK inexistente) no se
+// manejan acá: los traduce PrismaExceptionFilter a 409 o 404 para todos los módulos.
+
+// Las fechas llegan en el body como texto ('2026-10-01'), pero Prisma necesita
+// un Date para una columna DATE: por eso se convierten con new Date(...).
 
 // @Injectable() le avisa a Nest que puede crear esta clase y pasarla a
 // quien la pida en su constructor.
 @Injectable()
 export class EnrollmentsService {
+  // Nest crea PrismaService y lo pasa acá solo (inyección de dependencias).
+  constructor(private readonly prisma: PrismaService) {}
+
   /**
-   * Lista las inscripciones. Por ahora solo responde un mensaje, porque no hay base.
-   * @returns Un mensaje que explica qué va a devolver esta ruta.
+   * Devuelve todas las inscripciones, de la más nueva a la más vieja.
+   * @returns La lista de inscripciones (vacía si no hay ninguna).
    */
-  findAll(): PlaceholderResponse {
-    return {
-      message: 'Acá se van a listar las inscripciones (todavía no hay base)',
-    };
+  findAll(): Promise<Enrollment[]> {
+    return this.prisma.enrollment.findMany({ orderBy: { id: 'desc' } });
   }
 
   /**
-   * Busca una inscripción por su id. Por ahora solo devuelve el id que llegó.
+   * Busca una inscripción por su id.
    * @param id - El id de la inscripción, por ejemplo 1.
-   * @returns Un mensaje con el id pedido.
+   * @returns La inscripción encontrada.
+   * @throws NotFoundException si no existe una inscripción con ese id.
    */
-  findOne(id: number): PlaceholderResponse {
-    return {
-      message:
-        'Acá se va a mostrar la inscripción pedida (todavía no hay base)',
-      id,
-    };
+  async findOne(id: number): Promise<Enrollment> {
+    const enrollment = await this.prisma.enrollment.findUnique({
+      where: { id },
+    });
+    // findUnique devuelve null si no la encuentra. NotFoundException hace que
+    // Nest responda 404 con este mensaje.
+    if (!enrollment) {
+      throw new NotFoundException('No existe una inscripción con ese id');
+    }
+    return enrollment;
   }
 
   /**
-   * Recibe una inscripción nueva. Por ahora devuelve los datos sin guardarlos.
-   * @param createEnrollmentDto - Los datos que llegaron en el body, ya validados.
-   * @returns Un mensaje con los datos recibidos.
+   * Crea una inscripción nueva.
+   * @param createEnrollmentDto - Los datos de la inscripción que llegaron en el body.
+   * @returns La inscripción creada.
    */
-  create(
-    createEnrollmentDto: CreateEnrollmentDto
-  ): PlaceholderResponse<CreateEnrollmentDto> {
-    return {
-      message: 'Inscripción recibida (todavía no se guarda en la base)',
-      data: createEnrollmentDto,
-    };
+  create(createEnrollmentDto: CreateEnrollmentDto): Promise<Enrollment> {
+    const { procedureDate, ...data } = createEnrollmentDto;
+    return this.prisma.enrollment.create({
+      data: { ...data, procedureDate: new Date(procedureDate) },
+    });
   }
 
   /**
-   * Recibe los cambios de una inscripción. Por ahora los devuelve sin guardarlos.
+   * Edita los campos que llegaron de una inscripción existente.
    * @param id - El id de la inscripción a editar.
-   * @param updateEnrollmentDto - Solo los campos que cambian, ya validados.
-   * @returns Un mensaje con el id y los cambios recibidos.
+   * @param updateEnrollmentDto - Solo los campos que cambian.
+   * @returns La inscripción ya editada.
+   * @throws NotFoundException si no existe una inscripción con ese id.
    */
-  update(
+  async update(
     id: number,
     updateEnrollmentDto: UpdateEnrollmentDto
-  ): PlaceholderResponse<UpdateEnrollmentDto> {
-    return {
-      message: 'Cambios recibidos (todavía no se guardan en la base)',
-      id,
-      data: updateEnrollmentDto,
-    };
+  ): Promise<Enrollment> {
+    await this.findOne(id);
+    const { procedureDate, ...data } = updateEnrollmentDto;
+    return this.prisma.enrollment.update({
+      where: { id },
+      // Si no vino la fecha, queda undefined y Prisma no toca la columna.
+      data: {
+        ...data,
+        procedureDate: procedureDate ? new Date(procedureDate) : undefined,
+      },
+    });
   }
 
   /**
-   * Recibe el pedido para borrar una inscripción. Por ahora no borra nada.
+   * Borra una inscripción.
+   * Si la inscripción tiene pagos o un abono, la base no deja borrarla (409).
    * @param id - El id de la inscripción a borrar.
-   * @returns Un mensaje con el id pedido.
+   * @returns La inscripción borrada.
+   * @throws NotFoundException si no existe una inscripción con ese id.
    */
-  remove(id: number): PlaceholderResponse {
-    return { message: 'Pedido de borrado recibido (todavía no hay base)', id };
+  async remove(id: number): Promise<Enrollment> {
+    await this.findOne(id);
+    return this.prisma.enrollment.delete({ where: { id } });
   }
 }

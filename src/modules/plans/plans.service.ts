@@ -1,73 +1,74 @@
-import { Injectable } from '@nestjs/common';
-import type { PlaceholderResponse } from '../../shared/types/placeholder-response.js';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../../shared/database/prisma.service.js';
 import { CreatePlanDto } from './dto/create-plan.dto.js';
 import { UpdatePlanDto } from './dto/update-plan.dto.js';
+import { Plan } from './entities/plan.entity.js';
 
-// QUÉ ES: el servicio de los planes: listar, buscar, crear, editar y borrar.
+// QUÉ ES: el servicio de planes: listar, buscar, crear, editar y borrar.
 // NIVEL: service — acá va la lógica; el controller solo recibe y responde.
 // DÓNDE SE USA: PlansController lo recibe por inyección de dependencias.
-// A FUTURO: en el TP 11 se conecta a la tabla plans con Prisma. Por ahora
-// no guarda nada: responde un mensaje y los datos que llegaron, ya validados.
+
+// Los errores de la base (id repetido, plan en uso) no se manejan acá:
+// los traduce PrismaExceptionFilter a 409 o 404 para todos los módulos.
 
 // @Injectable() le avisa a Nest que puede crear esta clase y pasarla a
 // quien la pida en su constructor.
 @Injectable()
 export class PlansService {
+  // Nest crea PrismaService y lo pasa acá solo (inyección de dependencias).
+  constructor(private readonly prisma: PrismaService) {}
+
   /**
-   * Lista los planes. Por ahora solo responde un mensaje, porque no hay base.
-   * @returns Un mensaje que explica qué va a devolver esta ruta.
+   * Devuelve todos los planes, ordenados por nombre.
+   * @returns La lista de planes (vacía si no hay ninguno).
    */
-  findAll(): PlaceholderResponse {
-    return { message: 'Acá se van a listar los planes (todavía no hay base)' };
+  findAll(): Promise<Plan[]> {
+    return this.prisma.plan.findMany({ orderBy: { name: 'asc' } });
   }
 
   /**
-   * Busca un plan por su id. Por ahora solo devuelve el id que llegó.
+   * Busca un plan por su id.
    * @param id - El id del plan, por ejemplo 'familiar'.
-   * @returns Un mensaje con el id pedido.
+   * @returns El plan encontrado.
+   * @throws NotFoundException si no existe un plan con ese id.
    */
-  findOne(id: string): PlaceholderResponse {
-    return {
-      message: 'Acá se va a mostrar el plan pedido (todavía no hay base)',
-      id,
-    };
+  async findOne(id: string): Promise<Plan> {
+    const plan = await this.prisma.plan.findUnique({ where: { id } });
+    // findUnique devuelve null si no lo encuentra. NotFoundException hace que
+    // Nest responda 404 con este mensaje.
+    if (!plan) throw new NotFoundException('No existe un plan con ese id');
+    return plan;
   }
 
   /**
-   * Recibe un plan nuevo. Por ahora devuelve los datos sin guardarlos.
-   * @param createPlanDto - Los datos que llegaron en el body, ya validados.
-   * @returns Un mensaje con los datos recibidos.
+   * Crea un plan nuevo.
+   * @param createPlanDto - Los datos del plan que llegaron en el body.
+   * @returns El plan creado.
    */
-  create(createPlanDto: CreatePlanDto): PlaceholderResponse<CreatePlanDto> {
-    return {
-      message: 'Plan recibido (todavía no se guarda en la base)',
-      data: createPlanDto,
-    };
+  create(createPlanDto: CreatePlanDto): Promise<Plan> {
+    return this.prisma.plan.create({ data: createPlanDto });
   }
 
   /**
-   * Recibe los cambios de un plan. Por ahora los devuelve sin guardarlos.
+   * Edita los campos que llegaron de un plan existente.
    * @param id - El id del plan a editar.
-   * @param updatePlanDto - Solo los campos que cambian, ya validados.
-   * @returns Un mensaje con el id y los cambios recibidos.
+   * @param updatePlanDto - Solo los campos que cambian.
+   * @returns El plan ya editado.
+   * @throws NotFoundException si no existe un plan con ese id.
    */
-  update(
-    id: string,
-    updatePlanDto: UpdatePlanDto
-  ): PlaceholderResponse<UpdatePlanDto> {
-    return {
-      message: 'Cambios recibidos (todavía no se guardan en la base)',
-      id,
-      data: updatePlanDto,
-    };
+  async update(id: string, updatePlanDto: UpdatePlanDto): Promise<Plan> {
+    await this.findOne(id);
+    return this.prisma.plan.update({ where: { id }, data: updatePlanDto });
   }
 
   /**
-   * Recibe el pedido para borrar un plan. Por ahora no borra nada.
+   * Borra un plan.
    * @param id - El id del plan a borrar.
-   * @returns Un mensaje con el id pedido.
+   * @returns El plan borrado.
+   * @throws NotFoundException si no existe un plan con ese id.
    */
-  remove(id: string): PlaceholderResponse {
-    return { message: 'Pedido de borrado recibido (todavía no hay base)', id };
+  async remove(id: string): Promise<Plan> {
+    await this.findOne(id);
+    return this.prisma.plan.delete({ where: { id } });
   }
 }

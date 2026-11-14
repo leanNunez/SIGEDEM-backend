@@ -20,9 +20,9 @@ describe('BookingsController', () => {
     controller = module.get<BookingsController>(BookingsController);
   });
 
-  it('findOne le pasa el id de la URL al service', () => {
-    bookingsService.findOne.mockReturnValue({ id: 1 });
-    expect(controller.findOne(1)).toEqual({ id: 1 });
+  it('findOne le pasa el id de la URL al service', async () => {
+    bookingsService.findOne.mockResolvedValue({ id: 1 });
+    await expect(controller.findOne(1)).resolves.toEqual({ id: 1 });
     expect(bookingsService.findOne).toHaveBeenCalledWith(1);
   });
 });

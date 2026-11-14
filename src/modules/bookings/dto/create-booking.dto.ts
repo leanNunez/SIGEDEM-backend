@@ -17,13 +17,15 @@ import { DATE_ONLY_PATTERN } from '../../../shared/validation/date-pattern.js';
 // QUÉ ES: los datos que hay que mandar en el body para reservar una cancha.
 // NIVEL: dto — describe lo que entra a la API y valida cada campo.
 // DÓNDE SE USA: BookingsController lo recibe en POST /api/bookings.
-// A FUTURO: en el TP 11 los datos se guardan en la tabla bookings (ver BookingsService).
+// Los datos se guardan en la tabla bookings, salvo fullName, dni y phone, que
+// van a la tabla renters (una fila por DNI; ver BookingsService).
 
-// Cada decorador repite una regla de la tabla bookings (database/schema.sql).
+// Cada decorador repite una regla de las tablas bookings y renters
+// (prisma/schema.prisma y los CHECK de la migración init).
 // Así el error se detecta acá y la API responde 400 con un mensaje claro,
 // antes de que el dato llegue a la base.
 
-// Regex del DNI, la misma del CHECK de la columna dni.
+// Regex del DNI, la misma del CHECK de la columna renters.dni.
 //   ^ y $    → la regla se aplica al texto completo.
 //   [0-9]    → cada carácter es un número.
 //   {7,8}    → tiene que haber 7 u 8 números.
@@ -59,7 +61,7 @@ export class CreateBookingDto {
   // La fecha llega en texto, por ejemplo '2026-11-05'.
   // @IsDateString con strict: true rechaza días que no existen ('2026-02-30').
   // @Matches exige AAAA-MM-DD, sin hora ni zona horaria (ver date-pattern.ts).
-  // En el TP 11, BookingsService la va a convertir en Date antes de guardarla.
+  // BookingsService la convierte en Date antes de guardarla.
   @IsDateString(
     { strict: true },
     { message: 'La fecha tiene que ser AAAA-MM-DD' }

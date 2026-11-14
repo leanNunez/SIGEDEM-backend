@@ -20,9 +20,9 @@ describe('PaymentsController', () => {
     controller = module.get<PaymentsController>(PaymentsController);
   });
 
-  it('findOne le pasa el id de la URL al service', () => {
-    paymentsService.findOne.mockReturnValue({ id: 1 });
-    expect(controller.findOne(1)).toEqual({ id: 1 });
+  it('findOne le pasa el id de la URL al service', async () => {
+    paymentsService.findOne.mockResolvedValue({ id: 1 });
+    await expect(controller.findOne(1)).resolves.toEqual({ id: 1 });
     expect(paymentsService.findOne).toHaveBeenCalledWith(1);
   });
 });
