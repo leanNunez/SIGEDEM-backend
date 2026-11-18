@@ -1,12 +1,13 @@
-import { existsSync } from 'node:fs';
+import { config } from 'dotenv';
 
 // QUÉ ES: las variables de entorno de la API, leídas en un solo lugar.
 // NIVEL: configuración — no tiene lógica, solo valores.
-// DÓNDE SE USA: main.ts (puerto) y setup-app.ts (CORS).
-// A FUTURO: databaseUrl se usa cuando conectemos la API a PostgreSQL.
+// DÓNDE SE USA: main.ts (puerto), setup-app.ts (CORS), PrismaService y
+// prisma.config.ts (conexión a la base).
 
-// Node no lee el .env solo: acá se cargan sus valores en process.env.
-if (existsSync('.env')) process.loadEnvFile('.env');
+// Node no lee el .env solo: dotenv carga sus valores en process.env. Si no hay
+// .env, no hace nada. quiet: true evita que escriba un aviso en cada arranque.
+config({ quiet: true });
 
 const port = Number(process.env.PORT ?? 4000);
 

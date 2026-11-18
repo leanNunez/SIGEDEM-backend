@@ -1,5 +1,6 @@
 -- SIGEDEM: datos de ejemplo, como mínimo 5 registros por tabla (TP 9).
--- Las personas son ficticias. Correr después de schema.sql.
+-- Las personas son ficticias. Se carga con npx prisma db seed, después de
+-- crear las tablas con la migración (npx prisma migrate dev).
 
 INSERT INTO roles (name, description) VALUES
   ('operador', 'Mesa de entrada: registra inscripciones y pagos informados'),
@@ -127,9 +128,19 @@ INSERT INTO courts (id, activity, name, detail, units, member_price, public_pric
   ('voley-playa', 'voley', 'Vóley playa', 'Tres canchas de arena', 3, 8000, 12000),
   ('futbol-7', 'futbol', 'Fútbol 7', 'Cancha de ejemplo', 1, 25000, 36000);
 
-INSERT INTO bookings (court_id, court_number, date, hour, full_name, dni, phone, is_member, price) VALUES
-  ('futbol-5', 1, '2026-11-05', 20, 'Ana Gómez', '30111222', '381 555-0101', TRUE, 15000),
-  ('futbol-5', 2, '2026-11-05', 20, 'Pedro Ledesma', '29123456', '381 555-0201', FALSE, 22000),
-  ('futbol-11', 1, '2026-11-06', 21, 'Bruno Díaz', '31222333', '381 555-0102', TRUE, 35000),
-  ('voley-cubierta', 1, '2026-11-07', 18, 'Sofía Paz', '41234567', '381 555-0202', FALSE, 15000),
-  ('voley-playa', 3, '2026-11-08', 17, 'Laura Ruiz', '33555666', '381 555-0105', TRUE, 8000);
+-- Quienes alquilaron canchas. Algunos son socios (están en persons) y otros no.
+INSERT INTO renters (dni, full_name, phone) VALUES
+  ('30111222', 'Ana Gómez', '381 555-0101'),
+  ('29123456', 'Pedro Ledesma', '381 555-0201'),
+  ('31222333', 'Bruno Díaz', '381 555-0102'),
+  ('41234567', 'Sofía Paz', '381 555-0202'),
+  ('33555666', 'Laura Ruiz', '381 555-0105');
+
+-- Ana (renter 1) reservó dos veces: sus datos están una sola vez en renters.
+INSERT INTO bookings (court_id, court_number, date, hour, renter_id, is_member, price) VALUES
+  ('futbol-5', 1, '2026-11-05', 20, 1, TRUE, 15000),
+  ('futbol-5', 2, '2026-11-05', 20, 2, FALSE, 22000),
+  ('futbol-11', 1, '2026-11-06', 21, 3, TRUE, 35000),
+  ('voley-cubierta', 1, '2026-11-07', 18, 4, FALSE, 15000),
+  ('voley-playa', 3, '2026-11-08', 17, 5, TRUE, 8000),
+  ('futbol-5', 1, '2026-11-12', 20, 1, TRUE, 15000);
