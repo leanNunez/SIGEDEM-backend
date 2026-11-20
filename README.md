@@ -128,6 +128,7 @@ Van en un `.env` en la raíz, que **no** se sube a git. Es opcional: sin `.env` 
 | `DATABASE_URL` | Conexión a PostgreSQL                             | `postgresql://postgres:postgres@localhost:5432/sigedem` |
 | `API_BASE_URL` | URL base de la API                                | `http://localhost:4000/api`                             |
 | `FRONTEND_URL` | Origen del front que puede llamar a la API (CORS) | `http://localhost:5173`                                 |
+| `JWT_SECRET`   | Clave con la que se firman los JWT del login      | `clave-de-desarrollo-cambiar` (solo para probar)        |
 
 Ejemplo de `.env` (cambiá la contraseña por la tuya de PostgreSQL):
 
@@ -136,25 +137,28 @@ PORT=4000
 DATABASE_URL=postgresql://postgres:TU_CONTRASEÑA@localhost:5432/sigedem
 API_BASE_URL=http://localhost:4000/api
 FRONTEND_URL=http://localhost:5173
+JWT_SECRET=una-clave-larga-y-al-azar
 ```
+
+Para inventar una clave al azar: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`. En Render no hace falta: `render.yaml` le pide que genere una.
 
 > El puerto es 4000 porque el 3000 lo usa json-server en el front.
 
 ## Endpoints
 
-Todas las rutas cuelgan de `/api` y leen y escriben en PostgreSQL con Prisma Client. Usuarios e Ingreso todavía son el esqueleto de Nest: llegan en el TP 12.
+Todas las rutas cuelgan de `/api` y leen y escriben en PostgreSQL con Prisma Client. Ingreso tiene el registro (TP 12); el login con JWT llega en la segunda parte del TP 12.
 
-| Recurso       | Ruta               | Id                 | Estado               |
-| ------------- | ------------------ | ------------------ | -------------------- |
-| Estado        | `/api`             | —                  | ✅ Funciona          |
-| Planes        | `/api/plans`       | texto (`familiar`) | ✅ Funciona          |
-| Usuarios      | `/api/users`       | número             | 🚧 Esqueleto (TP 12) |
-| Personas      | `/api/persons`     | número             | ✅ Funciona          |
-| Inscripciones | `/api/enrollments` | número             | ✅ Funciona          |
-| Pagos         | `/api/payments`    | número             | ✅ Funciona          |
-| Canchas       | `/api/courts`      | texto (`futbol-5`) | ✅ Funciona          |
-| Reservas      | `/api/bookings`    | número             | ✅ Funciona          |
-| Ingreso       | `/api/auth`        | —                  | 🚧 Esqueleto (TP 12) |
+| Recurso       | Ruta               | Id                 | Estado                         |
+| ------------- | ------------------ | ------------------ | ------------------------------ |
+| Estado        | `/api`             | —                  | ✅ Funciona                    |
+| Planes        | `/api/plans`       | texto (`familiar`) | ✅ Funciona                    |
+| Usuarios      | `/api/users`       | número             | ✅ Funciona (sin POST)         |
+| Personas      | `/api/persons`     | número             | ✅ Funciona                    |
+| Inscripciones | `/api/enrollments` | número             | ✅ Funciona                    |
+| Pagos         | `/api/payments`    | número             | ✅ Funciona                    |
+| Canchas       | `/api/courts`      | texto (`futbol-5`) | ✅ Funciona                    |
+| Reservas      | `/api/bookings`    | número             | ✅ Funciona                    |
+| Ingreso       | `/api/auth`        | —                  | 🚧 Registro listo, falta login |
 
 Métodos de cada recurso CRUD: `GET` lista · `GET /:id` · `POST` · `PATCH /:id` · `DELETE /:id`.
 
@@ -190,6 +194,22 @@ Para probarlo, en Postman está la carpeta **TP 10 - Validaciones**: por cada m�
 - La migración inicial está en `prisma/migrations/20261111194707_init` (`npx prisma migrate dev --name init`).
 - `src/shared/database/prisma.service.ts` es la conexión que comparten todos los módulos, y los services de planes, personas, inscripciones, pagos, canchas y reservas hacen el CRUD con Prisma Client (`findMany`, `findUnique`, `create`, `update`, `delete`).
 
+## TP 12: autenticación
+
+- Paquetes: `@nestjs/jwt` (crea y verifica los JWT) y `bcrypt` (hashea y compara contraseñas), más `@types/bcrypt` en desarrollo.
+- `JWT_SECRET` va en el `.env` (ver [Variables de entorno](#variables-de-entorno)).
+- **Una sola ruta para crear usuarios:** `POST /api/auth/register`. Se sacó `POST /api/users` para no tener dos rutas que hagan lo mismo; el registro usa el mismo `CreateUserDto` y le pide a `UsersService` que cree el usuario.
+- `UsersService` guarda la contraseña con `bcrypt.hash` (10 vueltas) en `password_hash`. Ninguna respuesta de la API trae la contraseña ni su hash: las consultas usan `omit: { passwordHash: true }`. La única función que trae el hash es `findByEmail`, que es para el login.
+
+| Pedido                                        | Respuesta                            |
+| --------------------------------------------- | ------------------------------------ |
+| `POST /api/auth/register` con datos válidos   | `201` con el usuario, sin contraseña |
+| El mail ya está registrado                    | `409`                                |
+| Contraseña de menos de 8 caracteres, mail mal | `400`                                |
+| `POST /api/users`                             | `404` (ya no existe)                 |
+
+> Los usuarios de `seed.sql` tienen `sin-hash` como contraseña: no pueden iniciar sesión. Para probar el login, primero hay que registrarse.
+
 ## Pruebas con Postman
 
 En `postman/` están la colección y el entorno, listos para importar:
@@ -200,7 +220,7 @@ En `postman/` están la colección y el entorno, listos para importar:
 
 La URL base sale de la variable `baseUrl` del entorno (`http://localhost:4000/api`). Cada pedido trae un test que revisa que la respuesta sea exitosa. Para correrlos todos juntos: clic derecho en la colección → **Run collection**.
 
-Cada carpeta tiene los pedidos en orden: **Listar**, **Ver uno** (un registro del seed), **Crear**, **Editar** y **Borrar**. Editar y Borrar trabajan sobre el registro que acaba de crear Crear, así la base vuelve a quedar como el seed. Para los recursos con id numérico, Crear guarda el id nuevo en una variable de la colección (`personId`, `bookingId`, etc.). En **Alquiler de canchas** hay dos Crear: uno con un DNI que ya alquiló (reusa su fila de `renters`) y otro con un DNI nuevo. Al final está la carpeta **TP 10 - Validaciones**.
+Cada carpeta tiene los pedidos en orden: **Listar**, **Ver uno** (un registro del seed), **Crear**, **Editar** y **Borrar**. Editar y Borrar trabajan sobre el registro que acaba de crear Crear, así la base vuelve a quedar como el seed. Para los recursos con id numérico, Crear guarda el id nuevo en una variable de la colección (`personId`, `bookingId`, etc.). Los usuarios se crean en **Ingreso → Registrarse**, que guarda el id en `userId`; por eso Ingreso va antes que Usuarios. En **Alquiler de canchas** hay dos Crear: uno con un DNI que ya alquiló (reusa su fila de `renters`) y otro con un DNI nuevo. Al final está la carpeta **TP 10 - Validaciones**.
 
 ## Estructura
 

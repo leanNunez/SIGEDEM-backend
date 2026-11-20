@@ -31,3 +31,7 @@ services:
         sync: false
       - key: FRONTEND_URL
         sync: false
+      # Clave para firmar los JWT del login: Render inventa una al azar y
+      # la guarda, así nunca queda escrita en el repo.
+      - key: JWT_SECRET
+        generateValue: true
