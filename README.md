@@ -146,19 +146,19 @@ Para inventar una clave al azar: `node -e "console.log(require('crypto').randomB
 
 ## Endpoints
 
-Todas las rutas cuelgan de `/api` y leen y escriben en PostgreSQL con Prisma Client. Ingreso tiene el registro (TP 12); el login con JWT llega en la segunda parte del TP 12.
+Todas las rutas cuelgan de `/api` y leen y escriben en PostgreSQL con Prisma Client. Ingreso tiene el registro y login con JWT (TP 12).
 
-| Recurso       | Ruta               | Id                 | Estado                         |
-| ------------- | ------------------ | ------------------ | ------------------------------ |
-| Estado        | `/api`             | —                  | ✅ Funciona                    |
-| Planes        | `/api/plans`       | texto (`familiar`) | ✅ Funciona                    |
-| Usuarios      | `/api/users`       | número             | ✅ Funciona (sin POST)         |
-| Personas      | `/api/persons`     | número             | ✅ Funciona                    |
-| Inscripciones | `/api/enrollments` | número             | ✅ Funciona                    |
-| Pagos         | `/api/payments`    | número             | ✅ Funciona                    |
-| Canchas       | `/api/courts`      | texto (`futbol-5`) | ✅ Funciona                    |
-| Reservas      | `/api/bookings`    | número             | ✅ Funciona                    |
-| Ingreso       | `/api/auth`        | —                  | 🚧 Registro listo, falta login |
+| Recurso       | Ruta               | Id                 | Estado                 |
+| ------------- | ------------------ | ------------------ | ---------------------- |
+| Estado        | `/api`             | —                  | ✅ Funciona            |
+| Planes        | `/api/plans`       | texto (`familiar`) | ✅ Funciona            |
+| Usuarios      | `/api/users`       | número             | ✅ Funciona (sin POST) |
+| Personas      | `/api/persons`     | número             | ✅ Funciona            |
+| Inscripciones | `/api/enrollments` | número             | ✅ Funciona            |
+| Pagos         | `/api/payments`    | número             | ✅ Funciona            |
+| Canchas       | `/api/courts`      | texto (`futbol-5`) | ✅ Funciona            |
+| Reservas      | `/api/bookings`    | número             | ✅ Funciona            |
+| Ingreso       | `/api/auth`        | —                  | ✅ Funciona            |
 
 Métodos de cada recurso CRUD: `GET` lista · `GET /:id` · `POST` · `PATCH /:id` · `DELETE /:id`.
 
@@ -200,13 +200,17 @@ Para probarlo, en Postman está la carpeta **TP 10 - Validaciones**: por cada m�
 - `JWT_SECRET` va en el `.env` (ver [Variables de entorno](#variables-de-entorno)).
 - **Una sola ruta para crear usuarios:** `POST /api/auth/register`. Se sacó `POST /api/users` para no tener dos rutas que hagan lo mismo; el registro usa el mismo `CreateUserDto` y le pide a `UsersService` que cree el usuario.
 - `UsersService` guarda la contraseña con `bcrypt.hash` (10 vueltas) en `password_hash`. Ninguna respuesta de la API trae la contraseña ni su hash: las consultas usan `omit: { passwordHash: true }`. La única función que trae el hash es `findByEmail`, que es para el login.
+- **Login:** `POST /api/auth/login` busca el usuario por mail, compara la contraseña con `bcrypt.compare` y devuelve `{ access_token }` firmado con `JWT_SECRET`, que dura 1 hora. Si el mail no existe, la contraseña no coincide o el usuario está dado de baja, responde siempre el mismo `401`, así no se puede averiguar qué mails están registrados.
 
-| Pedido                                        | Respuesta                            |
-| --------------------------------------------- | ------------------------------------ |
-| `POST /api/auth/register` con datos válidos   | `201` con el usuario, sin contraseña |
-| El mail ya está registrado                    | `409`                                |
-| Contraseña de menos de 8 caracteres, mail mal | `400`                                |
-| `POST /api/users`                             | `404` (ya no existe)                 |
+| Pedido                                                 | Respuesta                            |
+| ------------------------------------------------------ | ------------------------------------ |
+| `POST /api/auth/register` con datos válidos            | `201` con el usuario, sin contraseña |
+| El mail ya está registrado                             | `409`                                |
+| Contraseña de menos de 8 caracteres, mail mal          | `400`                                |
+| `POST /api/users`                                      | `404` (ya no existe)                 |
+| `POST /api/auth/login` con mail y contraseña correctos | `200` con `{ access_token }`         |
+| Login con contraseña incorrecta o mail no registrado   | `401`                                |
+| Login con mail de formato inválido                     | `400`                                |
 
 > Los usuarios de `seed.sql` tienen `sin-hash` como contraseña: no pueden iniciar sesión. Para probar el login, primero hay que registrarse.
 

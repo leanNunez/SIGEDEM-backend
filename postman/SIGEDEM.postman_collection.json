@@ -223,7 +223,7 @@
     },
     {
       "name": "Ingreso",
-      "description": "Rutas de /api/auth. Registrarse ya funciona (TP 12); el login con JWT se agrega en la segunda parte del TP 12. El resto todavía es el esqueleto generado por Nest.",
+      "description": "Rutas de /api/auth: registrarse e iniciar sesión con JWT (TP 12). Los pedidos de login usan el usuario que crea Registrarse; al final, Usuarios → Borrar lo elimina.",
       "item": [
         {
           "name": "Registrarse",
@@ -367,7 +367,7 @@
           "response": []
         },
         {
-          "name": "Listar",
+          "name": "Iniciar sesión",
           "event": [
             {
               "listen": "test",
@@ -375,67 +375,11 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('Responde 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/auth",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth"
-              ]
-            },
-            "description": "Devuelve la lista completa."
-          },
-          "response": []
-        },
-        {
-          "name": "Ver uno",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/auth/{{authId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "{{authId}}"
-              ]
-            },
-            "description": "Devuelve un registro de ingreso por id."
-          },
-          "response": []
-        },
-        {
-          "name": "Crear",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Responde 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Devuelve el token', () => {",
+                  "  pm.expect(pm.response.json().access_token).to.be.a('string');",
+                  "});",
+                  "// Guarda el token por si después hay rutas protegidas.",
+                  "pm.collectionVariables.set('token', pm.response.json().access_token);",
                   "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
                 ]
               }
@@ -451,7 +395,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"ana@sigedem.test\",\n  \"password\": \"123456\"\n}",
+              "raw": "{\n  \"email\": \"carlos.perez@example.com\",\n  \"password\": \"clave-segura-123\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -459,34 +403,35 @@
               }
             },
             "url": {
-              "raw": "{{baseUrl}}/auth",
+              "raw": "{{baseUrl}}/auth/login",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "auth"
+                "auth",
+                "login"
               ]
             },
-            "description": "Da de alta un registro de ingreso."
+            "description": "Inicia sesión con el usuario que se creó en Registrarse. Devuelve { access_token } con un JWT que dura 1 hora y lo guarda en la variable token."
           },
           "response": []
         },
         {
-          "name": "Modificar",
+          "name": "Iniciar sesión con contraseña incorrecta (401)",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Responde 401', () => pm.response.to.have.status(401));",
                   "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
                 ]
               }
             }
           ],
           "request": {
-            "method": "PATCH",
+            "method": "POST",
             "header": [
               {
                 "key": "Content-Type",
@@ -495,7 +440,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"password\": \"otra-clave\"\n}",
+              "raw": "{\n  \"email\": \"carlos.perez@example.com\",\n  \"password\": \"otra-clave-123\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -503,47 +448,106 @@
               }
             },
             "url": {
-              "raw": "{{baseUrl}}/auth/{{authId}}",
+              "raw": "{{baseUrl}}/auth/login",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "auth",
-                "{{authId}}"
+                "login"
               ]
             },
-            "description": "Cambia los datos enviados de un registro de ingreso."
+            "description": "La contraseña no coincide con la guardada: responde 401 con el mismo mensaje que si el mail no existiera."
           },
           "response": []
         },
         {
-          "name": "Borrar",
+          "name": "Iniciar sesión con mail no registrado (401)",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Responde 401', () => pm.response.to.have.status(401));",
                   "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
                 ]
               }
             }
           ],
           "request": {
-            "method": "DELETE",
-            "header": [],
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"nadie@example.com\",\n  \"password\": \"clave-segura-123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
-              "raw": "{{baseUrl}}/auth/{{authId}}",
+              "raw": "{{baseUrl}}/auth/login",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "auth",
-                "{{authId}}"
+                "login"
               ]
             },
-            "description": "Elimina un registro de ingreso."
+            "description": "El mail no está registrado: responde el mismo 401, así no se puede averiguar qué mails existen."
+          },
+          "response": []
+        },
+        {
+          "name": "Iniciar sesión con mail inválido (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"no-es-un-mail\",\n  \"password\": \"clave-segura-123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "El mail no tiene forma de email: lo frena el ValidationPipe con 400 antes de llegar al service."
           },
           "response": []
         }
@@ -3113,6 +3117,11 @@
     },
     {
       "key": "validationId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "token",
       "value": "",
       "type": "string"
     }
