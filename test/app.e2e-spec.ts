@@ -158,6 +158,43 @@ describe('App (e2e)', () => {
     }
   });
 
+  it('POST /api/auth/login devuelve un JWT con la contraseña correcta y 401 con otra', async () => {
+    const server = app.getHttpServer();
+    const { body: user } = await request(server)
+      .post('/api/auth/register')
+      .send(NEW_USER)
+      .expect(201);
+
+    const ok = await request(server)
+      .post('/api/auth/login')
+      .send({ email: NEW_USER.email, password: NEW_USER.password })
+      .expect(200);
+    // Un JWT son tres partes en base64 separadas por puntos.
+    expect(ok.body.access_token).toMatch(/^[\w-]+\.[\w-]+\.[\w-]+$/);
+
+    await request(server)
+      .post('/api/auth/login')
+      .send({ email: NEW_USER.email, password: 'otra-clave-123' })
+      .expect(401);
+
+    // Se borra enseguida, así la base vuelve a quedar como el seed.
+    await request(server).delete(`/api/users/${user.id}`).expect(200);
+  });
+
+  it('POST /api/auth/login responde 401 si el mail no está registrado', () => {
+    return request(app.getHttpServer())
+      .post('/api/auth/login')
+      .send({ email: 'nadie@example.com', password: 'claveSegura123' })
+      .expect(401);
+  });
+
+  it('POST /api/auth/login responde 400 si el mail no es válido', () => {
+    return request(app.getHttpServer())
+      .post('/api/auth/login')
+      .send({ email: 'no-es-un-mail', password: 'claveSegura123' })
+      .expect(400);
+  });
+
   afterEach(async () => {
     await app.close();
   });
