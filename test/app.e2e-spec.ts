@@ -30,6 +30,14 @@ const NEW_BOOKING = {
   price: 36000,
 };
 
+// Un body válido para POST /api/auth/register (rol 1 = operador).
+const NEW_USER = {
+  roleId: 1,
+  fullName: 'Usuario de prueba',
+  email: 'prueba.registro@example.com',
+  password: 'claveSegura123',
+};
+
 describe('App (e2e)', () => {
   let app: INestApplication<App>;
 
@@ -103,6 +111,87 @@ describe('App (e2e)', () => {
     return request(app.getHttpServer())
       .post('/api/bookings')
       .send({ ...NEW_BOOKING, isMember: 'si' })
+      .expect(400);
+  });
+
+  it('POST /api/auth/register crea el usuario y no devuelve la contraseña', async () => {
+    const server = app.getHttpServer();
+    const res = await request(server)
+      .post('/api/auth/register')
+      .send(NEW_USER)
+      .expect(201);
+    expect(res.body.email).toBe(NEW_USER.email);
+    expect(res.body).not.toHaveProperty('password');
+    expect(res.body).not.toHaveProperty('passwordHash');
+    // Se borra enseguida, así la base vuelve a quedar como el seed.
+    await request(server).delete(`/api/users/${res.body.id}`).expect(200);
+  });
+
+  it('POST /api/auth/register responde 409 si el mail ya está registrado', () => {
+    // operador@example.com ya está en seed.sql.
+    return request(app.getHttpServer())
+      .post('/api/auth/register')
+      .send({ ...NEW_USER, email: 'operador@example.com' })
+      .expect(409);
+  });
+
+  it('POST /api/auth/register responde 400 si la contraseña es corta', () => {
+    return request(app.getHttpServer())
+      .post('/api/auth/register')
+      .send({ ...NEW_USER, password: '123' })
+      .expect(400);
+  });
+
+  it('POST /api/users ya no existe: se usa /api/auth/register', () => {
+    return request(app.getHttpServer())
+      .post('/api/users')
+      .send(NEW_USER)
+      .expect(404);
+  });
+
+  it('GET /api/users no devuelve el hash de ninguna contraseña', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/api/users')
+      .expect(200);
+    for (const user of res.body) {
+      expect(user).not.toHaveProperty('passwordHash');
+    }
+  });
+
+  it('POST /api/auth/login devuelve un JWT con la contraseña correcta y 401 con otra', async () => {
+    const server = app.getHttpServer();
+    const { body: user } = await request(server)
+      .post('/api/auth/register')
+      .send(NEW_USER)
+      .expect(201);
+
+    const ok = await request(server)
+      .post('/api/auth/login')
+      .send({ email: NEW_USER.email, password: NEW_USER.password })
+      .expect(200);
+    // Un JWT son tres partes en base64 separadas por puntos.
+    expect(ok.body.access_token).toMatch(/^[\w-]+\.[\w-]+\.[\w-]+$/);
+
+    await request(server)
+      .post('/api/auth/login')
+      .send({ email: NEW_USER.email, password: 'otra-clave-123' })
+      .expect(401);
+
+    // Se borra enseguida, así la base vuelve a quedar como el seed.
+    await request(server).delete(`/api/users/${user.id}`).expect(200);
+  });
+
+  it('POST /api/auth/login responde 401 si el mail no está registrado', () => {
+    return request(app.getHttpServer())
+      .post('/api/auth/login')
+      .send({ email: 'nadie@example.com', password: 'claveSegura123' })
+      .expect(401);
+  });
+
+  it('POST /api/auth/login responde 400 si el mail no es válido', () => {
+    return request(app.getHttpServer())
+      .post('/api/auth/login')
+      .send({ email: 'no-es-un-mail', password: 'claveSegura123' })
       .expect(400);
   });
 

@@ -12,14 +12,13 @@ import {
 
 // QUÉ ES: los datos que hay que mandar en el body para crear un usuario.
 // NIVEL: dto — describe lo que entra a la API y valida cada campo.
-// DÓNDE SE USA: UsersController lo recibe en POST /api/users.
-// A FUTURO: en el TP 12 UsersService guarda estos datos en la tabla users.
+// DÓNDE SE USA: AuthController lo recibe en POST /api/auth/register y
+// UsersService guarda estos datos en la tabla users.
 
 // Cada decorador repite una regla de la tabla users (prisma/schema.prisma).
 // La tabla users no tiene CHECK: sus reglas son los largos de cada columna.
-// La contraseña llega en texto plano; cuando esté el login (TP 12), UsersService
-// la va a guardar hasheada en la columna password_hash: el hash nunca entra ni
-// sale por la API.
+// La contraseña llega en texto plano y UsersService la guarda hasheada con
+// bcrypt en la columna password_hash: el hash nunca entra ni sale por la API.
 
 // Largo mínimo de la contraseña (regla de la API, la tabla no la tiene).
 const PASSWORD_MIN_LENGTH = 8;
