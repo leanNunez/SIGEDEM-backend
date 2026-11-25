@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CourtsController } from './courts.controller.js';
-import { CourtsService } from './courts.service.js';
+import { CourtsController } from '../../../src/modules/courts/courts.controller.js';
+import { CourtsService } from '../../../src/modules/courts/courts.service.js';
 
 // QUÉ ES: los tests unitarios de CourtsController.
 // NIVEL: test — revisa que el controller le pase el trabajo al service.

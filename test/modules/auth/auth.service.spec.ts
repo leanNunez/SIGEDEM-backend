@@ -2,8 +2,8 @@ import { UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as bcrypt from 'bcrypt';
-import { UsersService } from '../users/users.service.js';
-import { AuthService } from './auth.service.js';
+import { UsersService } from '../../../src/modules/users/users.service.js';
+import { AuthService } from '../../../src/modules/auth/auth.service.js';
 
 // QUÉ ES: los tests unitarios de AuthService.
 // NIVEL: test — prueba la lógica con UsersService y JwtService falsos.

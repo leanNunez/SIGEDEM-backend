@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthController } from './auth.controller.js';
-import { AuthService } from './auth.service.js';
+import { AuthController } from '../../../src/modules/auth/auth.controller.js';
+import { AuthService } from '../../../src/modules/auth/auth.service.js';
 
 // QUÉ ES: los tests unitarios de AuthController.
 // NIVEL: test — prueba el controller con un AuthService falso.

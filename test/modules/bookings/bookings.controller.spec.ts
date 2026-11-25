@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BookingsController } from './bookings.controller.js';
-import { BookingsService } from './bookings.service.js';
+import { BookingsController } from '../../../src/modules/bookings/bookings.controller.js';
+import { BookingsService } from '../../../src/modules/bookings/bookings.service.js';
 
 // QUÉ ES: los tests unitarios de BookingsController.
 // NIVEL: test — revisa que el controller le pase el trabajo al service.

@@ -1,8 +1,8 @@
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaService } from '../../shared/database/prisma.service.js';
-import { EnrollmentsService } from './enrollments.service.js';
-import { Enrollment } from './entities/enrollment.entity.js';
+import { PrismaService } from '../../../src/shared/database/prisma.service.js';
+import { EnrollmentsService } from '../../../src/modules/enrollments/enrollments.service.js';
+import { Enrollment } from '../../../src/modules/enrollments/entities/enrollment.entity.js';
 
 // QUÉ ES: los tests unitarios de EnrollmentsService.
 // NIVEL: test — prueba la lógica del service sin tocar la base.
