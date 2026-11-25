@@ -1,8 +1,8 @@
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaService } from '../../shared/database/prisma.service.js';
-import { Plan } from './entities/plan.entity.js';
-import { PlansService } from './plans.service.js';
+import { PrismaService } from '../../../src/shared/database/prisma.service.js';
+import { Plan } from '../../../src/modules/plans/entities/plan.entity.js';
+import { PlansService } from '../../../src/modules/plans/plans.service.js';
 
 // QUÉ ES: los tests unitarios de PlansService.
 // NIVEL: test — prueba la lógica del service sin tocar la base.

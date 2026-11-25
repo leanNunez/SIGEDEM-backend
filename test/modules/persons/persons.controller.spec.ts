@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PersonsController } from './persons.controller.js';
-import { PersonsService } from './persons.service.js';
+import { PersonsController } from '../../../src/modules/persons/persons.controller.js';
+import { PersonsService } from '../../../src/modules/persons/persons.service.js';
 
 // QUÉ ES: los tests unitarios de PersonsController.
 // NIVEL: test — revisa que el controller le pase el trabajo al service.

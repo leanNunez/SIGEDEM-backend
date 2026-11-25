@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UsersController } from './users.controller.js';
-import { UsersService } from './users.service.js';
+import { UsersController } from '../../../src/modules/users/users.controller.js';
+import { UsersService } from '../../../src/modules/users/users.service.js';
 
 // QUÉ ES: los tests unitarios de UsersController.
 // NIVEL: test — prueba el controller con un UsersService falso.
