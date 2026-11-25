@@ -1,9 +1,12 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Prisma } from '../../generated/prisma/client.js';
-import { PrismaService } from '../../shared/database/prisma.service.js';
-import { BookingsService } from './bookings.service.js';
-import { BookingWithRenter, Renter } from './entities/booking.entity.js';
+import { Prisma } from '../../../src/generated/prisma/client.js';
+import { PrismaService } from '../../../src/shared/database/prisma.service.js';
+import { BookingsService } from '../../../src/modules/bookings/bookings.service.js';
+import {
+  BookingWithRenter,
+  Renter,
+} from '../../../src/modules/bookings/entities/booking.entity.js';
 
 // QUÉ ES: los tests unitarios de BookingsService.
 // NIVEL: test — prueba la lógica del service sin tocar la base.

@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PlansController } from './plans.controller.js';
-import { PlansService } from './plans.service.js';
+import { PlansController } from '../../../src/modules/plans/plans.controller.js';
+import { PlansService } from '../../../src/modules/plans/plans.service.js';
 
 // QUÉ ES: los tests unitarios de PlansController.
 // NIVEL: test — revisa que el controller le pase el trabajo al service.

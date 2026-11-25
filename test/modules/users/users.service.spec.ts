@@ -1,10 +1,10 @@
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as bcrypt from 'bcrypt';
-import { PrismaService } from '../../shared/database/prisma.service.js';
-import { CreateUserDto } from './dto/create-user.dto.js';
-import { PublicUser } from './entities/user.entity.js';
-import { UsersService } from './users.service.js';
+import { PrismaService } from '../../../src/shared/database/prisma.service.js';
+import { CreateUserDto } from '../../../src/modules/users/dto/create-user.dto.js';
+import { PublicUser } from '../../../src/modules/users/entities/user.entity.js';
+import { UsersService } from '../../../src/modules/users/users.service.js';
 
 // QUÉ ES: los tests unitarios de UsersService.
 // NIVEL: test — prueba la lógica del service sin tocar la base.

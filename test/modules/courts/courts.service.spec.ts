@@ -1,9 +1,9 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Prisma } from '../../generated/prisma/client.js';
-import { PrismaService } from '../../shared/database/prisma.service.js';
-import { CourtsService } from './courts.service.js';
-import { Court } from './entities/court.entity.js';
+import { Prisma } from '../../../src/generated/prisma/client.js';
+import { PrismaService } from '../../../src/shared/database/prisma.service.js';
+import { CourtsService } from '../../../src/modules/courts/courts.service.js';
+import { Court } from '../../../src/modules/courts/entities/court.entity.js';
 
 // QUÉ ES: los tests unitarios de CourtsService.
 // NIVEL: test — prueba la lógica del service sin tocar la base.

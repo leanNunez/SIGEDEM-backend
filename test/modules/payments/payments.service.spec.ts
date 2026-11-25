@@ -1,9 +1,9 @@
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Prisma } from '../../generated/prisma/client.js';
-import { PrismaService } from '../../shared/database/prisma.service.js';
-import { Payment } from './entities/payment.entity.js';
-import { PaymentsService } from './payments.service.js';
+import { Prisma } from '../../../src/generated/prisma/client.js';
+import { PrismaService } from '../../../src/shared/database/prisma.service.js';
+import { Payment } from '../../../src/modules/payments/entities/payment.entity.js';
+import { PaymentsService } from '../../../src/modules/payments/payments.service.js';
 
 // QUÉ ES: los tests unitarios de PaymentsService.
 // NIVEL: test — prueba la lógica del service sin tocar la base.

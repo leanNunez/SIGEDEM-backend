@@ -1,8 +1,8 @@
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaService } from '../../shared/database/prisma.service.js';
-import { Person } from './entities/person.entity.js';
-import { PersonsService } from './persons.service.js';
+import { PrismaService } from '../../../src/shared/database/prisma.service.js';
+import { Person } from '../../../src/modules/persons/entities/person.entity.js';
+import { PersonsService } from '../../../src/modules/persons/persons.service.js';
 
 // QUÉ ES: los tests unitarios de PersonsService.
 // NIVEL: test — prueba la lógica del service sin tocar la base.

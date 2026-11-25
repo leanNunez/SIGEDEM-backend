@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PaymentsController } from './payments.controller.js';
-import { PaymentsService } from './payments.service.js';
+import { PaymentsController } from '../../../src/modules/payments/payments.controller.js';
+import { PaymentsService } from '../../../src/modules/payments/payments.service.js';
 
 // QUÉ ES: los tests unitarios de PaymentsController.
 // NIVEL: test — revisa que el controller le pase el trabajo al service.

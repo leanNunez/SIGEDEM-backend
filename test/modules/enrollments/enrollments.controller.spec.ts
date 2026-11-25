@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { EnrollmentsController } from './enrollments.controller.js';
-import { EnrollmentsService } from './enrollments.service.js';
+import { EnrollmentsController } from '../../../src/modules/enrollments/enrollments.controller.js';
+import { EnrollmentsService } from '../../../src/modules/enrollments/enrollments.service.js';
 
 // QUÉ ES: los tests unitarios de EnrollmentsController.
 // NIVEL: test — revisa que el controller le pase el trabajo al service.
