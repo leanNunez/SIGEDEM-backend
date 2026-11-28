@@ -28,11 +28,11 @@ export class PlansService {
 
   /**
    * Busca un plan por su id.
-   * @param id - El id del plan, por ejemplo 'familiar'.
+   * @param id - El id del plan, por ejemplo 2.
    * @returns El plan encontrado.
    * @throws NotFoundException si no existe un plan con ese id.
    */
-  async findOne(id: string): Promise<Plan> {
+  async findOne(id: number): Promise<Plan> {
     const plan = await this.prisma.plan.findUnique({ where: { id } });
     // findUnique devuelve null si no lo encuentra. NotFoundException hace que
     // Nest responda 404 con este mensaje.
@@ -56,7 +56,7 @@ export class PlansService {
    * @returns El plan ya editado.
    * @throws NotFoundException si no existe un plan con ese id.
    */
-  async update(id: string, updatePlanDto: UpdatePlanDto): Promise<Plan> {
+  async update(id: number, updatePlanDto: UpdatePlanDto): Promise<Plan> {
     await this.findOne(id);
     return this.prisma.plan.update({ where: { id }, data: updatePlanDto });
   }
@@ -67,7 +67,7 @@ export class PlansService {
    * @returns El plan borrado.
    * @throws NotFoundException si no existe un plan con ese id.
    */
-  async remove(id: string): Promise<Plan> {
+  async remove(id: number): Promise<Plan> {
     await this.findOne(id);
     return this.prisma.plan.delete({ where: { id } });
   }

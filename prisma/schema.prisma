@@ -85,8 +85,10 @@ model Person {
 
 // Planes del abono. Los campos son los que muestra el front en /planes; el
 // precio mensual no va acá porque cambia con cada cuadro tarifario.
+// El id es un número autoincremental, como en las demás tablas; el texto que
+// identifica al plan ('Familiar', 'Individual') es name, que es único.
 model Plan {
-  id           String       @id @db.VarChar(30)
+  id           Int          @id @default(autoincrement())
   name         String       @unique @db.VarChar(60)
   type         String       @db.VarChar(20)
   people       String       @db.VarChar(40)
@@ -125,7 +127,7 @@ model RateTable {
 // Precio de cada plan dentro de un cuadro tarifario.
 model Price {
   rateTableId Int       @map("rate_table_id")
-  planId      String    @map("plan_id") @db.VarChar(30)
+  planId      Int       @map("plan_id")
   amount      Decimal   @db.Decimal(10, 2)
   plan        Plan      @relation(fields: [planId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   rateTable   RateTable @relation(fields: [rateTableId], references: [id], onDelete: Cascade, onUpdate: NoAction)
@@ -140,7 +142,7 @@ model Price {
 model Enrollment {
   id            Int         @id @default(autoincrement())
   personId      Int         @map("person_id")
-  planId        String      @map("plan_id") @db.VarChar(30)
+  planId        Int         @map("plan_id")
   createdBy     Int         @map("created_by")
   status        String      @default("pendiente") @db.VarChar(20)
   procedureDate DateTime    @map("procedure_date") @db.Date

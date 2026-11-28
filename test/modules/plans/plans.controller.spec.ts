@@ -20,11 +20,11 @@ describe('PlansController', () => {
     controller = module.get<PlansController>(PlansController);
   });
 
+  // Acá se llama al método directo, sin pasar por HTTP: el id ya llega como
+  // número (en la API real lo convierte ParseIntPipe; eso lo prueba el e2e).
   it('findOne le pasa el id de la URL al service', async () => {
-    plansService.findOne.mockResolvedValue({ id: 'familiar' });
-    await expect(controller.findOne('familiar')).resolves.toEqual({
-      id: 'familiar',
-    });
-    expect(plansService.findOne).toHaveBeenCalledWith('familiar');
+    plansService.findOne.mockResolvedValue({ id: 2 });
+    await expect(controller.findOne(2)).resolves.toEqual({ id: 2 });
+    expect(plansService.findOne).toHaveBeenCalledWith(2);
   });
 });

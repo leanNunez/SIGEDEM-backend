@@ -11,7 +11,7 @@ import { Enrollment } from '../../../src/modules/enrollments/entities/enrollment
 const ENROLLMENT: Enrollment = {
   id: 1,
   personId: 1,
-  planId: 'individual',
+  planId: 1,
   createdBy: 1,
   status: 'acreditada',
   procedureDate: new Date('2026-10-01'),
@@ -63,14 +63,14 @@ describe('EnrollmentsService', () => {
     prisma.enrollment.create.mockResolvedValue(ENROLLMENT);
     await service.create({
       personId: 1,
-      planId: 'individual',
+      planId: 1,
       createdBy: 1,
       procedureDate: '2026-10-01',
     });
     expect(prisma.enrollment.create).toHaveBeenCalledWith({
       data: {
         personId: 1,
-        planId: 'individual',
+        planId: 1,
         createdBy: 1,
         procedureDate: new Date('2026-10-01'),
       },

@@ -151,7 +151,7 @@ Todas las rutas cuelgan de `/api` y leen y escriben en PostgreSQL con Prisma Cli
 | Recurso       | Ruta               | Id                 | Estado                 |
 | ------------- | ------------------ | ------------------ | ---------------------- |
 | Estado        | `/api`             | —                  | ✅ Funciona            |
-| Planes        | `/api/plans`       | texto (`familiar`) | ✅ Funciona            |
+| Planes        | `/api/plans`       | número             | ✅ Funciona            |
 | Usuarios      | `/api/users`       | número             | ✅ Funciona (sin POST) |
 | Personas      | `/api/persons`     | número             | ✅ Funciona            |
 | Inscripciones | `/api/enrollments` | número             | ✅ Funciona            |

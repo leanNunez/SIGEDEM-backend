@@ -36,7 +36,7 @@
     },
     {
       "name": "Planes",
-      "description": "Rutas de /api/plans. Se corren en orden: Crear da de alta un plan nuevo, y Editar y Borrar trabajan sobre ese mismo registro, así la base vuelve a quedar como el seed. El plan nuevo usa el id fijo natacion-verano.",
+      "description": "Rutas de /api/plans. Se corren en orden: Crear da de alta un plan nuevo, y Editar y Borrar trabajan sobre ese mismo registro, así la base vuelve a quedar como el seed. El id es un número que pone la base: el que devuelve Crear se guarda en la variable de colección planId.",
       "item": [
         {
           "name": "Listar",
@@ -86,6 +86,37 @@
             "method": "GET",
             "header": [],
             "url": {
+              "raw": "{{baseUrl}}/plans/2",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "plans",
+                "2"
+              ]
+            },
+            "description": "Devuelve un plan del seed por id (2 = Familiar)."
+          },
+          "response": []
+        },
+        {
+          "name": "Id que no es un número (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Lo frena ParseIntPipe', () => pm.expect(pm.response.json().message).to.include('numeric string is expected'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
               "raw": "{{baseUrl}}/plans/familiar",
               "host": [
                 "{{baseUrl}}"
@@ -95,7 +126,7 @@
                 "familiar"
               ]
             },
-            "description": "Devuelve un plan del seed por id."
+            "description": "El id del plan es un número. ParseIntPipe convierte el texto de la URL en número y, si no puede (familiar), responde 400 antes de llegar al service."
           },
           "response": []
         },
@@ -108,7 +139,9 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('Responde 201', () => pm.response.to.have.status(201));",
-                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
+                  "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                  "// La base le da el id al plan nuevo: se guarda para Editar y Borrar.",
+                  "pm.collectionVariables.set('planId', pm.response.json().id);"
                 ]
               }
             }
@@ -123,7 +156,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"natacion-verano\",\n  \"name\": \"Natación verano\",\n  \"type\": \"individual\",\n  \"people\": \"1 persona\",\n  \"description\": \"Plan de prueba para la temporada de verano.\"\n}",
+              "raw": "{\n  \"name\": \"Natación verano\",\n  \"type\": \"individual\",\n  \"people\": \"1 persona\",\n  \"description\": \"Plan de prueba para la temporada de verano.\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -175,13 +208,13 @@
               }
             },
             "url": {
-              "raw": "{{baseUrl}}/plans/natacion-verano",
+              "raw": "{{baseUrl}}/plans/{{planId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "plans",
-                "natacion-verano"
+                "{{planId}}"
               ]
             },
             "description": "Cambia los datos enviados de el plan creado."
@@ -206,13 +239,13 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/plans/natacion-verano",
+              "raw": "{{baseUrl}}/plans/{{planId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "plans",
-                "natacion-verano"
+                "{{planId}}"
               ]
             },
             "description": "Borra el plan creado."
@@ -974,7 +1007,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"personId\": 3,\n  \"planId\": \"familiar\",\n  \"createdBy\": 1,\n  \"procedureDate\": \"2026-11-07\"\n}",
+              "raw": "{\n  \"personId\": 3,\n  \"planId\": 2,\n  \"createdBy\": 1,\n  \"procedureDate\": \"2026-11-07\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1730,7 +1763,9 @@
                     "type": "text/javascript",
                     "exec": [
                       "pm.test('Responde 201', () => pm.response.to.have.status(201));",
-                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
+                      "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                      "// La base le da el id al plan nuevo: se guarda para Editar y Borrar.",
+                      "pm.collectionVariables.set('planId', pm.response.json().id);"
                     ]
                   }
                 }
@@ -1755,7 +1790,7 @@
                 "description": "Body con todos los campos bien: pasa el ValidationPipe y responde 201.",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"id\": \"natacion-verano\",\n  \"name\": \"Natación verano\",\n  \"type\": \"individual\",\n  \"people\": \"1 persona\",\n  \"description\": \"Plan de prueba para la temporada de verano.\"\n}",
+                  "raw": "{\n  \"name\": \"Natación verano\",\n  \"type\": \"individual\",\n  \"people\": \"1 persona\",\n  \"description\": \"Plan de prueba para la temporada de verano.\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1783,13 +1818,13 @@
                 "method": "DELETE",
                 "header": [],
                 "url": {
-                  "raw": "{{baseUrl}}/plans/natacion-verano",
+                  "raw": "{{baseUrl}}/plans/{{planId}}",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
                     "plans",
-                    "natacion-verano"
+                    "{{planId}}"
                   ]
                 },
                 "description": "Borra el registro que creó el POST válido, así la base vuelve a quedar como el seed."
@@ -1832,7 +1867,7 @@
                 "description": "Falta name: @IsNotEmpty y @IsString lo rechazan.",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"id\": \"natacion-verano\",\n  \"type\": \"individual\",\n  \"people\": \"1 persona\",\n  \"description\": \"Plan de prueba para la temporada de verano.\"\n}",
+                  "raw": "{\n  \"type\": \"individual\",\n  \"people\": \"1 persona\",\n  \"description\": \"Plan de prueba para la temporada de verano.\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1878,7 +1913,7 @@
                 "description": "type solo acepta individual o familiar (@IsIn). Plans no tiene campos numéricos ni booleanos.",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"id\": \"natacion-verano\",\n  \"name\": \"Natación verano\",\n  \"type\": \"grupal\",\n  \"people\": \"1 persona\",\n  \"description\": \"Plan de prueba para la temporada de verano.\"\n}",
+                  "raw": "{\n  \"name\": \"Natación verano\",\n  \"type\": \"grupal\",\n  \"people\": \"1 persona\",\n  \"description\": \"Plan de prueba para la temporada de verano.\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1924,7 +1959,7 @@
                 "description": "forbidNonWhitelisted: price no está en CreatePlanDto, así que responde 400.",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"id\": \"natacion-verano\",\n  \"name\": \"Natación verano\",\n  \"type\": \"individual\",\n  \"people\": \"1 persona\",\n  \"description\": \"Plan de prueba para la temporada de verano.\",\n  \"price\": 15000\n}",
+                  "raw": "{\n  \"name\": \"Natación verano\",\n  \"type\": \"individual\",\n  \"people\": \"1 persona\",\n  \"description\": \"Plan de prueba para la temporada de verano.\",\n  \"price\": 15000\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -2195,7 +2230,7 @@
                 "description": "Body con todos los campos bien: pasa el ValidationPipe y responde 201.",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"personId\": 3,\n  \"planId\": \"familiar\",\n  \"createdBy\": 1,\n  \"procedureDate\": \"2026-11-07\"\n}",
+                  "raw": "{\n  \"personId\": 3,\n  \"planId\": 2,\n  \"createdBy\": 1,\n  \"procedureDate\": \"2026-11-07\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -2247,7 +2282,7 @@
                       "pm.test('Responde 400', () => pm.response.to.have.status(400));",
                       "pm.test('Responde en menos de 1 segundo', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
                       "const messages = [].concat(pm.response.json().message).join(' | ');",
-                      "pm.test('Explica qué falló', () => pm.expect(messages).to.include(\"planId should not be empty\"));"
+                      "pm.test('Explica qué falló', () => pm.expect(messages).to.include(\"planId must be a positive number\"));"
                     ]
                   }
                 }
@@ -2269,7 +2304,7 @@
                     "enrollments"
                   ]
                 },
-                "description": "Falta planId: @IsNotEmpty y @IsString lo rechazan.",
+                "description": "Falta planId: @IsInt y @IsPositive lo rechazan.",
                 "body": {
                   "mode": "raw",
                   "raw": "{\n  \"personId\": 3,\n  \"createdBy\": 1,\n  \"procedureDate\": \"2026-11-07\"\n}",
@@ -2318,7 +2353,7 @@
                 "description": "personId tiene que ser un número entero (@IsInt). Enrollments no tiene campos booleanos.",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"personId\": \"tres\",\n  \"planId\": \"familiar\",\n  \"createdBy\": 1,\n  \"procedureDate\": \"2026-11-07\"\n}",
+                  "raw": "{\n  \"personId\": \"tres\",\n  \"planId\": 2,\n  \"createdBy\": 1,\n  \"procedureDate\": \"2026-11-07\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -2364,7 +2399,7 @@
                 "description": "status solo acepta pendiente, acreditada o anulada (@IsIn).",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"personId\": 3,\n  \"planId\": \"familiar\",\n  \"createdBy\": 1,\n  \"procedureDate\": \"2026-11-07\",\n  \"status\": \"aprobada\"\n}",
+                  "raw": "{\n  \"personId\": 3,\n  \"planId\": 2,\n  \"createdBy\": 1,\n  \"procedureDate\": \"2026-11-07\",\n  \"status\": \"aprobada\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -3085,6 +3120,11 @@
     }
   ],
   "variable": [
+    {
+      "key": "planId",
+      "value": "",
+      "type": "string"
+    },
     {
       "key": "userId",
       "value": "",

@@ -2,12 +2,9 @@ import {
   IsDateString,
   IsIn,
   IsInt,
-  IsNotEmpty,
   IsOptional,
   IsPositive,
-  IsString,
   Matches,
-  MaxLength,
 } from 'class-validator';
 import { DATE_ONLY_PATTERN } from '../../../shared/validation/date-pattern.js';
 
@@ -35,11 +32,9 @@ export class CreateEnrollmentDto {
   @IsPositive()
   personId: number;
 
-  // El id del plan es un texto, por ejemplo 'familiar' (VARCHAR(30)).
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(30)
-  planId: string;
+  @IsInt()
+  @IsPositive()
+  planId: number;
 
   // El usuario que carga la inscripción.
   @IsInt()
