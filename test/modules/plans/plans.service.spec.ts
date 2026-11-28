@@ -9,8 +9,8 @@ import { PlansService } from '../../../src/modules/plans/plans.service.js';
 // DÓNDE SE USA: los corre npm test.
 
 const PLAN: Plan = {
-  id: 'familiar',
-  name: 'Plan Familiar',
+  id: 2,
+  name: 'Familiar',
   type: 'familiar',
   people: 'Hasta 4 personas',
   description: 'Para el grupo familiar',
@@ -48,19 +48,17 @@ describe('PlansService', () => {
 
   it('findOne devuelve el plan si existe', async () => {
     prisma.plan.findUnique.mockResolvedValue(PLAN);
-    await expect(service.findOne('familiar')).resolves.toEqual(PLAN);
+    await expect(service.findOne(2)).resolves.toEqual(PLAN);
   });
 
   it('findOne responde 404 si el plan no existe', async () => {
     prisma.plan.findUnique.mockResolvedValue(null);
-    await expect(service.findOne('no-existe')).rejects.toThrow(
-      NotFoundException
-    );
+    await expect(service.findOne(999)).rejects.toThrow(NotFoundException);
   });
 
   it('update no toca la base si el plan no existe', async () => {
     prisma.plan.findUnique.mockResolvedValue(null);
-    await expect(service.update('no-existe', { name: 'X' })).rejects.toThrow(
+    await expect(service.update(999, { name: 'X' })).rejects.toThrow(
       NotFoundException
     );
     expect(prisma.plan.update).not.toHaveBeenCalled();
@@ -69,9 +67,9 @@ describe('PlansService', () => {
   it('remove borra el plan si existe', async () => {
     prisma.plan.findUnique.mockResolvedValue(PLAN);
     prisma.plan.delete.mockResolvedValue(PLAN);
-    await expect(service.remove('familiar')).resolves.toEqual(PLAN);
+    await expect(service.remove(2)).resolves.toEqual(PLAN);
     expect(prisma.plan.delete).toHaveBeenCalledWith({
-      where: { id: 'familiar' },
+      where: { id: 2 },
     });
   });
 });

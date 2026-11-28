@@ -11,8 +11,8 @@ import { setupApp } from './../src/shared/config/setup-app.js';
 // (con la migración y seed.sql), porque la API se conecta a PostgreSQL al arrancar.
 
 // Un body válido para POST /api/plans (los mismos datos que usa Postman).
+// No lleva id: lo pone la base.
 const NEW_PLAN = {
-  id: 'natacion-verano',
   name: 'Natación verano',
   type: 'individual',
   people: '1 persona',
@@ -58,9 +58,38 @@ describe('App (e2e)', () => {
 
   it('POST /api/plans responde 201 con un body válido', async () => {
     const server = app.getHttpServer();
-    await request(server).post('/api/plans').send(NEW_PLAN).expect(201);
+    const res = await request(server)
+      .post('/api/plans')
+      .send(NEW_PLAN)
+      .expect(201);
+    // La base le dio un id numérico al plan nuevo.
+    expect(typeof res.body.id).toBe('number');
     // Se borra enseguida, así la base vuelve a quedar como el seed.
-    await request(server).delete(`/api/plans/${NEW_PLAN.id}`).expect(200);
+    await request(server).delete(`/api/plans/${res.body.id}`).expect(200);
+  });
+
+  it('GET /api/plans/1 devuelve el plan Individual del seed', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/api/plans/1')
+      .expect(200);
+    expect(res.body).toMatchObject({ id: 1, name: 'Individual' });
+  });
+
+  it('GET /api/plans/:id responde 400 si el id no es un número', () => {
+    // ParseIntPipe rechaza 'familiar' antes de llegar al service.
+    return request(app.getHttpServer()).get('/api/plans/familiar').expect(400);
+  });
+
+  it('GET /api/plans/:id responde 404 si el plan no existe', () => {
+    return request(app.getHttpServer()).get('/api/plans/999').expect(404);
+  });
+
+  it('POST /api/plans responde 400 si se manda el id', () => {
+    // El DTO no declara id (lo pone la base): forbidNonWhitelisted lo rechaza.
+    return request(app.getHttpServer())
+      .post('/api/plans')
+      .send({ ...NEW_PLAN, id: 10 })
+      .expect(400);
   });
 
   it('POST /api/plans responde 400 si falta un campo obligatorio', () => {

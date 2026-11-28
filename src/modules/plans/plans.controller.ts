@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
 } from '@nestjs/common';
@@ -34,11 +35,14 @@ export class PlansController {
 
   /**
    * GET /api/plans/:id — devuelve un plan.
-   * @param id - El id que viene en la URL (/api/plans/familiar → 'familiar').
+   * @param id - El id que viene en la URL (/api/plans/2 → 2).
    * @returns El plan encontrado.
    */
+  // En la URL todo llega como texto ('2'). ParseIntPipe lo convierte en el
+  // número 2 antes de entrar al método; si no es un número (/api/plans/abc),
+  // responde 400 y el service ni se entera.
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<Plan> {
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<Plan> {
     return this.plansService.findOne(id);
   }
 
@@ -60,7 +64,7 @@ export class PlansController {
    */
   @Patch(':id')
   update(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body() updatePlanDto: UpdatePlanDto
   ): Promise<Plan> {
     return this.plansService.update(id, updatePlanDto);
@@ -73,7 +77,7 @@ export class PlansController {
    * @returns El plan borrado.
    */
   @Delete(':id')
-  remove(@Param('id') id: string): Promise<Plan> {
+  remove(@Param('id', ParseIntPipe) id: number): Promise<Plan> {
     return this.plansService.remove(id);
   }
 }

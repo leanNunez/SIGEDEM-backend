@@ -3,7 +3,6 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
-  Matches,
   MaxLength,
 } from 'class-validator';
 
@@ -20,27 +19,12 @@ import {
 // Los mismos valores que permite el CHECK de la columna type.
 export const PLAN_TYPES = ['individual', 'familiar'] as const;
 
-// Regex para el id del plan. Sirve para que el id se pueda usar tal cual en la
-// URL (/api/plans/familia-numerosa), igual que los id del front.
-//   ^ y $      → la regla se aplica al texto completo, de principio a fin.
-//   [a-z0-9-]  → cada carácter es una minúscula, un número o un guion.
-//   +          → tiene que haber al menos un carácter.
-// Ejemplos: 'familia-numerosa' pasa; 'Plan X' no (mayúscula y espacio).
-// La tabla no tiene esta regla (id es solo VARCHAR(30)): la agrega la API.
-const SLUG_PATTERN = /^[a-z0-9-]+$/;
-
+// El id no se manda: lo pone la base (autoincremental). Si llega en el body,
+// forbidNonWhitelisted lo rechaza con 400 porque el DTO no lo declara.
 export class CreatePlanDto {
   // Cada @MaxLength coincide con el VARCHAR de su columna.
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(30)
-  // @Matches valida el texto con la regex y, si no cumple, responde 400 con
-  // este mensaje.
-  @Matches(SLUG_PATTERN, {
-    message: 'El id solo puede tener minúsculas, números y guiones',
-  })
-  id: string;
-
+  // name es el texto que identifica al plan ('Familiar'): es único en la tabla,
+  // así que un nombre repetido responde 409.
   @IsString()
   @IsNotEmpty()
   @MaxLength(60)

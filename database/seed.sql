@@ -37,12 +37,14 @@ INSERT INTO persons (family_group_id, dni, first_name, last_name, birth_date, em
   (3, '51000111', 'Diego', 'Sosa', '2013-08-19', NULL, '381 555-0106');
 
 -- Los tres primeros son los del front; jubilado e infantil son de ejemplo.
-INSERT INTO plans (id, name, type, people, description, discount_note, badge) VALUES
-  ('individual', 'Individual', 'individual', '1 persona', 'Acceso completo al complejo para una persona.', 'Jubilados y pensionados: 50 % de descuento presentando el carnet.', NULL),
-  ('familiar', 'Familiar', 'familiar', 'Hasta 4 personas', 'Para el grupo familiar que vive en la misma casa.', NULL, 'Más elegido'),
-  ('familia-numerosa', 'Familia numerosa', 'familiar', '5 personas o más', 'Sin costo extra desde el quinto integrante.', 'Se acredita con la libreta o las partidas de nacimiento.', NULL),
-  ('jubilado', 'Jubilado', 'individual', '1 persona', 'Plan de ejemplo con el 50 % de descuento ya aplicado.', 'Presentando el carnet de jubilado o pensionado.', NULL),
-  ('infantil', 'Infantil', 'individual', '1 persona', 'Plan de ejemplo para menores de 12 años.', NULL, NULL);
+-- El id lo pone la base (1, 2, 3...): 1 Individual, 2 Familiar,
+-- 3 Familia numerosa, 4 Jubilado y 5 Infantil.
+INSERT INTO plans (name, type, people, description, discount_note, badge) VALUES
+  ('Individual', 'individual', '1 persona', 'Acceso completo al complejo para una persona.', 'Jubilados y pensionados: 50 % de descuento presentando el carnet.', NULL),
+  ('Familiar', 'familiar', 'Hasta 4 personas', 'Para el grupo familiar que vive en la misma casa.', NULL, 'Más elegido'),
+  ('Familia numerosa', 'familiar', '5 personas o más', 'Sin costo extra desde el quinto integrante.', 'Se acredita con la libreta o las partidas de nacimiento.', NULL),
+  ('Jubilado', 'individual', '1 persona', 'Plan de ejemplo con el 50 % de descuento ya aplicado.', 'Presentando el carnet de jubilado o pensionado.', NULL),
+  ('Infantil', 'individual', '1 persona', 'Plan de ejemplo para menores de 12 años.', NULL, NULL);
 
 INSERT INTO seasons (name, start_date, end_date) VALUES
   ('Temporada 2022-2023', '2022-09-01', '2023-04-30'),
@@ -59,21 +61,23 @@ INSERT INTO rate_tables (season_id, resolution) VALUES
   (5, 'Resolución 105/2026');
 
 -- El cuadro 5 tiene los precios actuales del front; los anteriores son de ejemplo.
+-- plan_id: 1 Individual, 2 Familiar, 3 Familia numerosa, 4 Jubilado, 5 Infantil.
 INSERT INTO prices (rate_table_id, plan_id, amount) VALUES
-  (1, 'individual', 10800), (1, 'familiar', 25200), (1, 'familia-numerosa', 30000), (1, 'jubilado', 5400), (1, 'infantil', 7200),
-  (2, 'individual', 12600), (2, 'familiar', 29400), (2, 'familia-numerosa', 35000), (2, 'jubilado', 6300), (2, 'infantil', 8400),
-  (3, 'individual', 14400), (3, 'familiar', 33600), (3, 'familia-numerosa', 40000), (3, 'jubilado', 7200), (3, 'infantil', 9600),
-  (4, 'individual', 16200), (4, 'familiar', 37800), (4, 'familia-numerosa', 45000), (4, 'jubilado', 8100), (4, 'infantil', 10800),
-  (5, 'individual', 18000), (5, 'familiar', 42000), (5, 'familia-numerosa', 50000), (5, 'jubilado', 9000), (5, 'infantil', 12000);
+  (1, 1, 10800), (1, 2, 25200), (1, 3, 30000), (1, 4, 5400), (1, 5, 7200),
+  (2, 1, 12600), (2, 2, 29400), (2, 3, 35000), (2, 4, 6300), (2, 5, 8400),
+  (3, 1, 14400), (3, 2, 33600), (3, 3, 40000), (3, 4, 7200), (3, 5, 9600),
+  (4, 1, 16200), (4, 2, 37800), (4, 3, 45000), (4, 4, 8100), (4, 5, 10800),
+  (5, 1, 18000), (5, 2, 42000), (5, 3, 50000), (5, 4, 9000), (5, 5, 12000);
 
+-- plan_id: 1 Individual, 2 Familiar, 4 Jubilado.
 INSERT INTO enrollments (person_id, plan_id, created_by, status, procedure_date, loaded_at) VALUES
-  (1, 'individual', 1, 'acreditada', '2026-10-01', '2026-10-01 09:30-03'),
-  (2, 'familiar', 1, 'acreditada', '2026-10-02', '2026-10-02 10:15-03'),
-  (4, 'jubilado', 1, 'acreditada', '2026-10-05', '2026-10-08 11:00-03'), -- tomada en papel
-  (5, 'individual', 1, 'acreditada', '2026-10-06', '2026-10-06 16:40-03'),
-  (6, 'individual', 1, 'acreditada', '2026-10-07', '2026-10-07 17:05-03'),
-  (7, 'individual', 1, 'pendiente', '2026-10-28', '2026-10-28 09:10-03'),
-  (8, 'individual', 1, 'anulada', '2026-10-20', '2026-10-20 12:20-03');
+  (1, 1, 1, 'acreditada', '2026-10-01', '2026-10-01 09:30-03'),
+  (2, 2, 1, 'acreditada', '2026-10-02', '2026-10-02 10:15-03'),
+  (4, 4, 1, 'acreditada', '2026-10-05', '2026-10-08 11:00-03'), -- tomada en papel
+  (5, 1, 1, 'acreditada', '2026-10-06', '2026-10-06 16:40-03'),
+  (6, 1, 1, 'acreditada', '2026-10-07', '2026-10-07 17:05-03'),
+  (7, 1, 1, 'pendiente', '2026-10-28', '2026-10-28 09:10-03'),
+  (8, 1, 1, 'anulada', '2026-10-20', '2026-10-20 12:20-03');
 
 INSERT INTO payments (enrollment_id, amount, paid_on, operation_number, status, verified_by) VALUES
   (1, 18000, '2026-10-01', 'OP-100001', 'acreditado', 2),

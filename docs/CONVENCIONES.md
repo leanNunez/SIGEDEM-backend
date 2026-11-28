@@ -70,11 +70,11 @@ Se escribe con `/** */` justo arriba de la función. Sirve porque **el editor lo
 ```ts
 /**
  * Busca un plan por su id.
- * @param id - El id del plan, por ejemplo 'familiar' (viene de la URL).
+ * @param id - El id del plan, por ejemplo 2 (viene de la URL).
  * @returns El plan encontrado.
  * @throws NotFoundException si no existe un plan con ese id.
  */
-findOne(id: string): Plan {
+findOne(id: number): Plan {
 ```
 
 | Etiqueta      | Cuándo va                                    |
@@ -115,7 +115,7 @@ Siempre conviene comentar: decoradores de Nest (`@Get(':id')`, `@Body()`), pipes
   ```
 
 - **Sin números ni textos sueltos:** se ponen en una constante con nombre (`const BOOKING_DAYS_AHEAD = 14;`).
-- **Tipos explícitos** en lo que recibe y devuelve cada función (`findOne(id: string): Plan`).
+- **Tipos explícitos** en lo que recibe y devuelve cada función (`findOne(id: number): Plan`).
 
 ## Nombres
 
@@ -149,8 +149,8 @@ Para un módulo nuevo, se copia esta plantilla y se cambian los nombres.
 // DÓNDE SE USA: PlansService devuelve objetos con esta forma.
 
 export class Plan {
-  // Identificador fijo y legible ('individual', 'familiar'), el mismo del front.
-  id: string;
+  // Número autoincremental: lo pone la base, como en las demás tablas.
+  id: number;
   name: string;
   // Solo puede ser uno de estos dos valores (igual que el CHECK de la tabla).
   type: 'individual' | 'familiar';
@@ -170,8 +170,8 @@ export class Plan {
 // DÓNDE SE USA: PlansController lo recibe en POST /api/plans.
 // A FUTURO: con class-validator se agregan las validaciones de cada campo.
 
+// El id no va: lo pone la base.
 export class CreatePlanDto {
-  id: string;
   name: string;
   type: 'individual' | 'familiar';
   people: string;
@@ -210,11 +210,11 @@ export class PlansService {
 
   /**
    * Busca un plan por su id.
-   * @param id - El id del plan, por ejemplo 'familiar'.
+   * @param id - El id del plan, por ejemplo 2.
    * @returns El plan encontrado.
    * @throws NotFoundException si no existe un plan con ese id.
    */
-  findOne(id: string): Plan {
+  findOne(id: number): Plan {
     const plan = this.plans.find((item) => item.id === id);
     // find devuelve undefined si no lo encuentra. NotFoundException hace que
     // Nest responda 404 con este mensaje.
@@ -228,8 +228,9 @@ export class PlansService {
    * @returns El plan creado.
    */
   create(createPlanDto: CreatePlanDto): Plan {
-    // Se copia el DTO en un objeto nuevo para no guardar la referencia original.
-    const plan: Plan = { ...createPlanDto };
+    // Se copia el DTO en un objeto nuevo y se le da el próximo número de id
+    // (con la base, lo hace el autoincremental).
+    const plan: Plan = { id: this.plans.length + 1, ...createPlanDto };
     this.plans.push(plan);
     return plan;
   }
@@ -239,7 +240,14 @@ export class PlansService {
 ### `plans.controller.ts`
 
 ```ts
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+} from '@nestjs/common';
 import { CreatePlanDto } from './dto/create-plan.dto.js';
 import { Plan } from './entities/plan.entity.js';
 import { PlansService } from './plans.service.js';
@@ -266,11 +274,11 @@ export class PlansController {
 
   /**
    * GET /api/plans/:id — devuelve un plan.
-   * @param id - El id que viene en la URL (/api/plans/familiar → 'familiar').
+   * @param id - El id que viene en la URL (/api/plans/2 → 2).
    * @returns El plan encontrado.
    */
   @Get(':id')
-  findOne(@Param('id') id: string): Plan {
+  findOne(@Param('id', ParseIntPipe) id: number): Plan {
     return this.plansService.findOne(id);
   }
 
